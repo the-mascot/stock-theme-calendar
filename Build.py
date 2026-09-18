@@ -8,7 +8,7 @@
   python build.py --daily           # 매일 (GitHub Actions)
   python build.py --daily --dry-run # 파일 안 쓰고 결과만 출력
 
-산출물: docs/data/YYYY-MM.json, docs/data/index.json
+산출물: data/YYYY-MM.json, data/index.json
 """
 
 from __future__ import annotations

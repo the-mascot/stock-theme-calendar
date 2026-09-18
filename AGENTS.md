@@ -26,7 +26,7 @@
 아이콘: React는 `src/components/icons.tsx` 6종.
 아이콘: vanilla는 `src/assets/icons/*.svg` 6종.
 
-전문(3층 전체 규칙): `docs/design-guide.md`.
+전문(3층 전체 규칙): `design-guide.md`.
 판단이 애매하면 화면을 그리기 전에 먼저 읽는다.
 
 다음 단계:

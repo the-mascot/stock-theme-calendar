@@ -12,7 +12,7 @@ export function toneOf(v: number | null | undefined): Tone {
 
 const BAND_SCALE = 5;
 
-/** 발산 스케일 상한(%) — 넘으면 최강 단계로 고정. 값은 docs/index.html 프로토타입과 동일. */
+/** 발산 스케일 상한(%) — 넘으면 최강 단계로 고정. 값은 초기 프로토타입과 동일(CLAUDE.md 참고). */
 export function bandVar(v: number | null | undefined): string {
   if (v == null) return 'var(--band-zero)';
   const a = Math.min(Math.abs(v), BAND_SCALE) / BAND_SCALE;

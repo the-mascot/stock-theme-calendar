@@ -182,4 +182,4 @@ indices:
 # ---------------------------------------------------------------- 백필
 backfill:
   default_period: "2y"
-  output_dir: "docs/data"
+  output_dir: "data"

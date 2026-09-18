@@ -11,29 +11,34 @@
 
 ```
 toss/
-├── build.py         # 토스증권 API → 월별 정적 JSON
-├── themes.yaml      # 테마 바스켓 정의 (손으로 관리)
-├── .env             # TOSS_CLIENT_ID / TOSS_CLIENT_SECRET  (커밋 금지)
-└── docs/            # GitHub Pages 루트
-    ├── index.html   # 프로토타입 UI (검증용 — 미니앱 아님)
-    └── data/
-        ├── index.json
-        └── YYYY-MM.json   × 26개월
+├── Build.py          # 토스증권 API → 월별 정적 JSON
+├── themes.yaml       # 테마 바스켓 정의 (손으로 관리)
+├── .env              # TOSS_CLIENT_ID / TOSS_CLIENT_SECRET  (커밋 금지, gitignore됨)
+├── data/              # GitHub Pages 루트 (repo root를 그대로 서빙)
+│   ├── index.json
+│   └── YYYY-MM.json   × 26개월
+├── src/               # 미니앱 화면 (Apps in Toss web-framework, React)
+└── .github/workflows/daily-batch.yml   # 평일 KST 16시 자동 배치
 ```
 
-**서버 없음.** GitHub Actions가 매일 배치를 돌려 JSON을 커밋하고, Pages가 서빙하고,
-앱은 정적 JSON을 fetch만 한다. DB도 백엔드도 없다.
+**서버 없음.** GitHub Actions(`daily-batch.yml`)가 매일 배치를 돌려 `data/`의
+JSON을 커밋하고, GitHub Pages가 repo root를 그대로 서빙하고, 미니앱은
+`https://<user>.github.io/<repo>/data/...`를 fetch만 한다. DB도 백엔드도 없다.
 
 ```bash
-python build.py --backfill 2y      # 최초 1회
-python build.py --daily            # 매일
-python build.py --daily --dry-run  # 파일 안 쓰고 결과만
-cd docs && python -m http.server 8000
+python Build.py --backfill 2y      # 최초 1회
+python Build.py --daily            # 매일 (GitHub Actions가 자동 실행)
+python Build.py --daily --dry-run  # 파일 안 쓰고 결과만
+npm run dev                        # 미니앱 로컬 실행 (src/)
 ```
+
+GitHub Pages 소스를 **"/ (root)"**로 설정해야 한다 — `docs/` 폴더를 없애고
+`data/`를 repo root로 옮겼기 때문에, Pages 설정이 예전 `/docs` 소스로 남아있으면
+아무것도 서빙되지 않는다. (저장소 Settings → Pages → Source)
 
 ## 데이터 스키마
 
-`docs/data/YYYY-MM.json`:
+`data/YYYY-MM.json`:
 
 ```json
 {
@@ -89,10 +94,10 @@ cd docs && python -m http.server 8000
 | 기준 | `rel` 우선, `chg` 토글 | 시장 전체 등락에 가려지는 문제 |
 | 색 | **상승 빨강 / 하락 파랑** | 한국 관행. 발산 스케일(빨강↔회색↔파랑) |
 | 랭킹 API | 안 씀 | 종목 단위라 테마 집계에 무용 |
-| 앱인토스 SDK | WebView | 캘린더+히트맵뿐이라 네이티브 성능 불필요, 프로토타입 그대로 뼈대로 재사용 |
+| 앱인토스 SDK | WebView | 캘린더+히트맵뿐이라 네이티브 성능 불필요 |
 
-발산 팔레트는 색맹 검증 통과 (두 극 ΔE 21.6, protan). 라이트/다크 스텝은
-`docs/index.html` 상단 `:root` 참고.
+발산 팔레트는 색맹 검증 통과 (두 극 ΔE 21.6, protan). 값의 정본은
+`src/styles/chart-colors.css`.
 
 ## 테마 바스켓 선정 기준
 
@@ -108,34 +113,28 @@ cd docs && python -m http.server 8000
 
 ## 남은 작업
 
-**UI (지금 여기)**
+**끝난 것**
 
-`docs/index.html`은 데이터 검증용 프로토타입이다. 데스크톱 기준으로 만들어서
-모바일로 그대로 못 옮긴다. 두 가지가 깨진다:
-
-1. **호버 툴팁** — 폰에 마우스가 없다. 칸 탭 → 하단 시트로 그날 12개 테마 전체
-   순위 + 상위 종목을 보여주는 쪽이 정보량도 더 낫다
-2. **7열 캘린더** — 폰 390px를 7등분하면 칸이 50px. 날짜 + 지수 3개 + 테마명이
-   물리적으로 안 들어간다. 지수를 월 상단 요약으로 빼거나, 히트맵을 메인으로
-   올리는 선택이 필요
-
-`docs/index.html` 하단의 **테마 순환 히트맵**(12행 × 영업일)이 순환 관찰에는
-캘린더보다 직관적이다. 모바일 메인 화면 후보.
+- **UI** — 데스크톱 전용 프로토타입(`docs/index.html`, 삭제됨)을 `src/`
+  미니앱 화면으로 이전. 호버 툴팁은 칸 탭 → 하단 시트(그날 12개 테마 전체
+  순위 + 상위 종목)로, 7열 캘린더는 히트맵(가로 스크롤, 세로축 테마 고정)을
+  기본 뷰로 바꿔 해소. 지수 3종은 칸에서 빼서 월 상단 요약으로 이동
+- **GitHub Actions** — `.github/workflows/daily-batch.yml`, 평일 KST 16시
+  이후(`Build.py --daily`) 자동 실행 + `data/` 변경분 자동 커밋
 
 **SDK: WebView로 결정**
 
 앱인토스는 두 SDK를 준다. 전면형·보상형 광고는 둘 다 공통 API로 지원하고
 배너만 갈린다.
 
-- **WebView (채택)** — 지금 프로토타입이 그대로 뼈대가 된다. 이 앱은 캘린더 +
-  색칠된 격자가 전부라 네이티브 성능이 필요한 구석이 없다
+- **WebView (채택)** — 캘린더 + 색칠된 격자가 전부라 네이티브 성능이 필요한
+  구석이 없다
 - Granite RN은 스크롤·제스처가 더 부드럽지만 **Expo 코드 재사용이 안 돼서**
   (파일 기반 라우팅이 다르고 Tailwind 미지원) 이 프로젝트 규모엔 비용 대비
   이득이 낮다고 판단해 보류
 
 **나중**
 
-- GitHub Actions 워크플로 (`--daily`, KST 16시 이후)
 - `verify.py` — 바스켓 상관계수 검증
 - 앱인토스 등록 → 심사
 
