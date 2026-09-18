@@ -1,0 +1,16 @@
+{
+  "token_method": "form-urlencoded + body creds",
+  "token_response_keys": [
+    "access_token",
+    "expires_in",
+    "token_type"
+  ],
+  "endpoints": {
+    "market_calendar": true,
+    "market_indicator_prices": false,
+    "index_candle_params": {
+      "interval": "1d",
+      "count": 5
+    }
+  }
+}

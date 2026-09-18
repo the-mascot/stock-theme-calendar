@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>테마 캘린더</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface:      #fcfcfb;
+    --plane:        #f9f9f7;
+    --ink:          #0b0b0b;
+    --ink-2:        #52514e;
+    --ink-muted:    #898781;
+    --grid:         #e1e0d9;
+    --ring:         rgba(11,11,11,.10);
+
+    /* 등락 잉크 — 한국 관행: 상승 빨강 / 하락 파랑 */
+    --up-ink:       #c62f2e;
+    --down-ink:     #1c5cab;
+
+    /* 발산 스케일: 빨강(+) ↔ 회색(0) ↔ 파랑(−) */
+    --pos-1: #fbe0df;  --pos-2: #f6c3c1;  --pos-3: #ef9a97;  --pos-4: #e34948;
+    --zero:  #f0efec;
+    --neg-1: #dfeafd;  --neg-2: #bcd7f7;  --neg-3: #8db9f0;  --neg-4: #2a78d6;
+
+    --chip-ink: #0b0b0b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface: #1a1a19;  --plane: #0d0d0d;
+      --ink: #ffffff;      --ink-2: #c3c2b7;  --ink-muted: #898781;
+      --grid: #2c2c2a;     --ring: rgba(255,255,255,.10);
+      --up-ink: #e66767;   --down-ink: #6da7ec;
+      --pos-1: #2e1d1d;  --pos-2: #5c2725;  --pos-3: #8e3331;  --pos-4: #c04644;
+      --zero:  #2c2c2a;
+      --neg-1: #16232f;  --neg-2: #173a5e;  --neg-3: #1c5cab;  --neg-4: #2a78d6;
+      --chip-ink: #ffffff;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface: #1a1a19;  --plane: #0d0d0d;
+    --ink: #ffffff;      --ink-2: #c3c2b7;  --ink-muted: #898781;
+    --grid: #2c2c2a;     --ring: rgba(255,255,255,.10);
+    --up-ink: #e66767;   --down-ink: #6da7ec;
+    --pos-1: #2e1d1d;  --pos-2: #5c2725;  --pos-3: #8e3331;  --pos-4: #c04644;
+    --zero:  #2c2c2a;
+    --neg-1: #16232f;  --neg-2: #173a5e;  --neg-3: #1c5cab;  --neg-4: #2a78d6;
+    --chip-ink: #ffffff;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0 16px 48px;
+    background: var(--plane); color: var(--ink);
+    font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+
+  header { display: flex; align-items: center; gap: 12px; padding: 20px 0 12px; flex-wrap: wrap; }
+  h1 { font-size: 17px; margin: 0; font-weight: 650; letter-spacing: -.01em; }
+  .spacer { flex: 1; }
+
+  button {
+    font: inherit; color: var(--ink); background: var(--surface);
+    border: 1px solid var(--ring); border-radius: 8px;
+    padding: 5px 11px; cursor: pointer;
+  }
+  button:hover { background: var(--plane); }
+  button[disabled] { opacity: .4; cursor: default; }
+  .seg { display: inline-flex; border: 1px solid var(--ring); border-radius: 8px; overflow: hidden; }
+  .seg button { border: 0; border-radius: 0; padding: 5px 10px; font-size: 13px; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+
+  #month { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 96px; text-align: center; }
+
+  /* ---- 캘린더 ---- */
+  .dow, .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .dow { margin-bottom: 6px; }
+  .dow div { font-size: 11px; color: var(--ink-muted); text-align: center; padding: 2px 0; }
+  .dow div:first-child { color: var(--up-ink); }
+  .dow div:last-child  { color: var(--down-ink); }
+
+  .cell {
+    background: var(--surface); border: 1px solid var(--grid); border-radius: 10px;
+    min-height: 92px; padding: 7px 8px; display: flex; flex-direction: column; gap: 5px;
+  }
+  .cell.empty { background: transparent; border-color: transparent; }
+  .cell.nodata { opacity: .45; }
+  .dnum { font-size: 11px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+
+  .idx { display: flex; flex-direction: column; gap: 1px; font-size: 11px; font-variant-numeric: tabular-nums; }
+  .idx div { display: flex; justify-content: space-between; gap: 6px; }
+  .idx span.k { color: var(--ink-muted); }
+  .up { color: var(--up-ink); } .down { color: var(--down-ink); } .flat { color: var(--ink-muted); }
+
+  .chip {
+    margin-top: auto; border-radius: 6px; padding: 3px 6px;
+    font-size: 11px; font-weight: 600; color: var(--chip-ink);
+    display: flex; justify-content: space-between; gap: 4px;
+    cursor: default; border: 1px solid var(--ring);
+  }
+  .chip b { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* ---- 히트맵 ---- */
+  section { margin-top: 32px; }
+  h2 { font-size: 13px; font-weight: 600; color: var(--ink-2); margin: 0 0 4px; }
+  .sub { font-size: 12px; color: var(--ink-muted); margin: 0 0 12px; }
+  .heat { display: grid; gap: 2px; align-items: center; }
+  .heat .lbl { font-size: 11px; color: var(--ink-2); padding-right: 8px; white-space: nowrap; text-align: right; }
+  .heat .hrow { display: grid; gap: 2px; }
+  .heat .hc { height: 18px; border-radius: 3px; }
+  .heat .hc.na { background: repeating-linear-gradient(45deg, var(--grid) 0 2px, transparent 2px 4px); }
+  .hdates { display: grid; gap: 2px; font-size: 9px; color: var(--ink-muted); text-align: center; margin-top: 3px; font-variant-numeric: tabular-nums; }
+
+  /* ---- 범례 ---- */
+  .legend { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--ink-muted); margin-top: 14px; }
+  .legend .sw { display: flex; gap: 2px; }
+  .legend .sw i { width: 20px; height: 12px; border-radius: 2px; display: block; }
+
+  /* ---- 툴팁 ---- */
+  #tip {
+    position: fixed; z-index: 50; pointer-events: none; opacity: 0;
+    transition: opacity .1s; max-width: 260px;
+    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--ring); border-radius: 10px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.18); padding: 10px 12px; font-size: 12px;
+  }
+  #tip h4 { margin: 0 0 2px; font-size: 12px; font-weight: 650; }
+  #tip .meta { color: var(--ink-muted); font-size: 11px; margin-bottom: 7px; }
+  #tip table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  #tip td { padding: 1px 0; }
+  #tip td.v { text-align: right; padding-left: 12px; }
+  #tip .note { margin-top: 7px; padding-top: 6px; border-top: 1px solid var(--grid); color: var(--ink-muted); font-size: 11px; }
+  #err { color: var(--up-ink); padding: 24px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>테마 캘린더</h1>
+    <div class="spacer"></div>
+    <div class="seg" role="group" aria-label="등락률 기준">
+      <button id="mRel" aria-pressed="true">시장대비</button>
+      <button id="mAbs" aria-pressed="false">원본</button>
+    </div>
+    <button id="prev" aria-label="이전 달">‹</button>
+    <span id="month">—</span>
+    <button id="next" aria-label="다음 달">›</button>
+  </header>
+
+  <div id="err" hidden></div>
+
+  <div class="dow"><div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div></div>
+  <div class="grid" id="cal"></div>
+
+  <div class="legend">
+    <span>시장대비 약세</span>
+    <span class="sw">
+      <i style="background:var(--neg-4)"></i><i style="background:var(--neg-3)"></i>
+      <i style="background:var(--neg-2)"></i><i style="background:var(--neg-1)"></i>
+      <i style="background:var(--zero)"></i>
+      <i style="background:var(--pos-1)"></i><i style="background:var(--pos-2)"></i>
+      <i style="background:var(--pos-3)"></i><i style="background:var(--pos-4)"></i>
+    </span>
+    <span>강세</span>
+    <span style="margin-left:8px">· 빗금 = 데이터 부족</span>
+  </div>
+
+  <section>
+    <h2>테마 순환</h2>
+    <p class="sub">세로축이 테마, 가로축이 그달 영업일. 강세 구간이 행을 옮겨 다니면 그게 순환이야.</p>
+    <div class="heat" id="heat"></div>
+  </section>
+</div>
+
+<div id="tip" role="tooltip"></div>
+
+<script>
+const DATA = 'data/';
+const SCALE = 5;          // 발산 스케일 상한(%) — 넘으면 최강 단계로 고정
+const state = { months: [], themes: [], i: 0, mode: 'rel', cur: null };
+
+const $ = s => document.querySelector(s);
+const tip = $('#tip');
+
+const fmt = v => v == null ? '–' : (v > 0 ? '+' : '') + v.toFixed(2) + '%';
+const cls = v => v == null ? 'flat' : v > 0 ? 'up' : v < 0 ? 'down' : 'flat';
+
+function band(v) {
+  if (v == null) return 'var(--zero)';
+  const a = Math.min(Math.abs(v), SCALE) / SCALE;
+  const step = a < .12 ? 0 : a < .35 ? 1 : a < .6 ? 2 : a < .82 ? 3 : 4;
+  if (step === 0) return 'var(--zero)';
+  return `var(--${v > 0 ? 'pos' : 'neg'}-${step})`;
+}
+
+// ---------------------------------------------------------------- 툴팁
+function showTip(e, html) {
+  tip.innerHTML = html;
+  tip.style.opacity = 1;
+  const r = tip.getBoundingClientRect();
+  let x = e.clientX + 14, y = e.clientY + 14;
+  if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 14;
+  if (y + r.height > innerHeight - 8) y = e.clientY - r.height - 14;
+  tip.style.left = Math.max(8, x) + 'px';
+  tip.style.top = Math.max(8, y) + 'px';
+}
+const hideTip = () => tip.style.opacity = 0;
+
+function themeTip(day, tid) {
+  const t = state.cur.th[tid];
+  if (!t) return '';
+  const name = (state.themes.find(x => x.id === tid) || {}).name || tid;
+  const rows = (t.top || []).map(([code, v]) =>
+    `<tr><td>${state.cur.stocks[code] || code}</td>
+         <td class="v ${cls(v)}">${fmt(v)}</td></tr>`).join('');
+  return `<h4>${name}</h4>
+    <div class="meta">${day} · ${t.n}종목 평균</div>
+    <table>
+      <tr><td>시장대비</td><td class="v ${cls(t.rel)}"><b>${fmt(t.rel)}</b></td></tr>
+      <tr><td>원본</td><td class="v ${cls(t.chg)}">${fmt(t.chg)}</td></tr>
+    </table>
+    <div class="note">상위 종목</div>
+    <table>${rows || '<tr><td>–</td></tr>'}</table>`;
+}
+
+// ---------------------------------------------------------------- 렌더
+function render() {
+  const m = state.cur, [y, mo] = m.month.split('-').map(Number);
+  $('#month').textContent = `${y}.${String(mo).padStart(2, '0')}`;
+  $('#prev').disabled = state.i === 0;
+  $('#next').disabled = state.i === state.months.length - 1;
+
+  const byDate = Object.fromEntries(m.days.map(d => [d.d, d]));
+  const first = new Date(y, mo - 1, 1), last = new Date(y, mo, 0);
+  const cal = $('#cal');
+  cal.innerHTML = '';
+
+  for (let i = 0; i < first.getDay(); i++)
+    cal.insertAdjacentHTML('beforeend', '<div class="cell empty"></div>');
+
+  for (let d = 1; d <= last.getDate(); d++) {
+    const key = `${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const row = byDate[key];
+    const el = document.createElement('div');
+    el.className = 'cell' + (row ? '' : ' nodata');
+    el.innerHTML = `<div class="dnum">${d}</div>`;
+
+    if (row) {
+      const ix = row.idx || {};
+      el.insertAdjacentHTML('beforeend', `<div class="idx">
+        <div><span class="k">코스피</span><span class="${cls(ix.kospi)}">${fmt(ix.kospi)}</span></div>
+        <div><span class="k">코스닥</span><span class="${cls(ix.kosdaq)}">${fmt(ix.kosdaq)}</span></div>
+        <div><span class="k">나스닥</span><span class="${cls(ix.nasdaq)}">${fmt(ix.nasdaq)}</span></div>
+      </div>`);
+
+      // lead 는 현재 기준(rel/chg)으로 다시 뽑는다
+      const ranked = Object.entries(row.th || {})
+        .map(([id, t]) => [id, t[state.mode]])
+        .filter(([, v]) => v != null)
+        .sort((a, b) => b[1] - a[1]);
+
+      if (ranked.length) {
+        const [tid, v] = ranked[0];
+        const name = (state.themes.find(x => x.id === tid) || {}).name || tid;
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.style.background = band(v);
+        chip.innerHTML = `<span>${name}</span><b>${fmt(v)}</b>`;
+        chip.addEventListener('mousemove', e => showTip(e, themeTip(key, tid)));
+        chip.addEventListener('mouseleave', hideTip);
+        el.appendChild(chip);
+      }
+    }
+    cal.appendChild(el);
+  }
+  renderHeat(m);
+}
+
+function renderHeat(m) {
+  const days = m.days, n = days.length;
+  const heat = $('#heat');
+  heat.style.gridTemplateColumns = '86px 1fr';
+  heat.innerHTML = '';
+
+  for (const th of state.themes) {
+    heat.insertAdjacentHTML('beforeend', `<div class="lbl">${th.name}</div>`);
+    const row = document.createElement('div');
+    row.className = 'hrow';
+    row.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+
+    for (const day of days) {
+      const t = (day.th || {})[th.id];
+      const c = document.createElement('div');
+      const v = t ? t[state.mode] : null;
+      c.className = 'hc' + (t ? '' : ' na');
+      if (t) c.style.background = band(v);
+      c.addEventListener('mousemove', e =>
+        showTip(e, t ? themeTip(day.d, th.id)
+                     : `<h4>${th.name}</h4><div class="meta">${day.d}</div>
+                        <div class="note">유효 종목이 부족해 집계에서 제외된 날이야</div>`));
+      c.addEventListener('mouseleave', hideTip);
+      row.appendChild(c);
+    }
+    heat.appendChild(row);
+  }
+
+  const dates = document.createElement('div');
+  dates.className = 'hdates';
+  dates.style.gridColumn = '2';
+  dates.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+  days.forEach((d, i) => {
+    const s = document.createElement('span');
+    s.textContent = (i % 5 === 0 || i === n - 1) ? Number(d.d.slice(8)) : '';
+    dates.appendChild(s);
+  });
+  heat.insertAdjacentHTML('beforeend', '<div></div>');
+  heat.appendChild(dates);
+}
+
+// ---------------------------------------------------------------- 로드
+async function loadMonth(i) {
+  state.i = i;
+  const r = await fetch(`${DATA}${state.months[i]}.json`);
+  if (!r.ok) throw new Error(`${state.months[i]}.json 을 못 읽었어 (${r.status})`);
+  state.cur = await r.json();
+  render();
+}
+
+async function init() {
+  try {
+    const r = await fetch(`${DATA}index.json`);
+    if (!r.ok) throw new Error(`index.json 을 못 읽었어 (${r.status})`);
+    const idx = await r.json();
+    state.months = idx.months;
+    state.themes = idx.themes;
+    await loadMonth(state.months.length - 1);
+  } catch (e) {
+    $('#err').hidden = false;
+    $('#err').textContent =
+      `${e.message} — docs 폴더에서 python -m http.server 로 띄웠는지 확인해줘 (file:// 로 열면 fetch 가 막혀).`;
+  }
+}
+
+$('#prev').onclick = () => loadMonth(state.i - 1);
+$('#next').onclick = () => loadMonth(state.i + 1);
+$('#mRel').onclick = () => setMode('rel');
+$('#mAbs').onclick = () => setMode('chg');
+function setMode(m) {
+  state.mode = m;
+  $('#mRel').setAttribute('aria-pressed', m === 'rel');
+  $('#mAbs').setAttribute('aria-pressed', m === 'chg');
+  render();
+}
+init();
+</script>
+</body>
+</html>

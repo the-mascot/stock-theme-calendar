@@ -1,0 +1,73 @@
+.heatmap-scroll {
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  background: var(--color-bg-canvas);
+  padding: var(--space-2);
+}
+
+.heatmap-labels {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+  width: 100px;
+  padding-right: var(--space-2);
+  background: var(--color-bg-canvas);
+}
+
+.heatmap-row-label {
+  height: 20px;
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.heatmap-date-spacer {
+  height: 18px;
+}
+
+.heatmap-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+  width: 44px;
+  min-height: 44px;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.heatmap-cell {
+  height: 20px;
+  width: 100%;
+  border-radius: 3px;
+}
+
+.heatmap-cell-na {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--color-bg) 0 2px,
+    transparent 2px 4px
+  );
+}
+
+.heatmap-date {
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--color-text-hint);
+  font-variant-numeric: tabular-nums;
+}

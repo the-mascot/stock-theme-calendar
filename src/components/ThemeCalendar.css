@@ -1,0 +1,64 @@
+.cal-dow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: var(--space-2);
+}
+
+.cal-dow-cell {
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-hint);
+  padding: 4px 0;
+}
+
+.cal-dow-cell:first-child {
+  color: var(--up-ink);
+}
+
+.cal-dow-cell:last-child {
+  color: var(--down-ink);
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal-cell {
+  min-height: 64px;
+  border-radius: 10px;
+  background: var(--color-bg-canvas);
+  border: 0;
+  padding: 6px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.cal-cell-nodata {
+  background: transparent;
+  cursor: default;
+}
+
+.cal-daynum {
+  font-size: 13px;
+  color: var(--color-text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.cal-chip {
+  width: 100%;
+  border-radius: 6px;
+  padding: 3px 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--band-chip-ink);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

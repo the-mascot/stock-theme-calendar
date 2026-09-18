@@ -1,0 +1,56 @@
+/**
+ * 등락 색 토큰 — 한국 증시 관행(상승 빨강 / 하락 파랑) + 발산 스케일.
+ * docs/index.html 프로토타입에서 그대로 가져옴 — 색맹 검증 통과(두 극 ΔE 21.6,
+ * protan, CLAUDE.md 참고)라 값을 임의로 바꾸지 않는다.
+ * tokens.css의 --color-danger/--color-success와는 별개다 — "위험/성공"과
+ * "상승/하락"은 의미가 다르다.
+ */
+:root {
+  --up-ink: #c62f2e;
+  --down-ink: #1c5cab;
+  --band-chip-ink: #0b0b0b;
+
+  --band-pos-1: #fbe0df;
+  --band-pos-2: #f6c3c1;
+  --band-pos-3: #ef9a97;
+  --band-pos-4: #e34948;
+  --band-zero: #f0efec;
+  --band-neg-1: #dfeafd;
+  --band-neg-2: #bcd7f7;
+  --band-neg-3: #8db9f0;
+  --band-neg-4: #2a78d6;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --up-ink: #e66767;
+    --down-ink: #6da7ec;
+    --band-chip-ink: #ffffff;
+
+    --band-pos-1: #2e1d1d;
+    --band-pos-2: #5c2725;
+    --band-pos-3: #8e3331;
+    --band-pos-4: #c04644;
+    --band-zero: #2c2c2a;
+    --band-neg-1: #16232f;
+    --band-neg-2: #173a5e;
+    --band-neg-3: #1c5cab;
+    --band-neg-4: #2a78d6;
+  }
+}
+
+:root[data-theme='dark'] {
+  --up-ink: #e66767;
+  --down-ink: #6da7ec;
+  --band-chip-ink: #ffffff;
+
+  --band-pos-1: #2e1d1d;
+  --band-pos-2: #5c2725;
+  --band-pos-3: #8e3331;
+  --band-pos-4: #c04644;
+  --band-zero: #2c2c2a;
+  --band-neg-1: #16232f;
+  --band-neg-2: #173a5e;
+  --band-neg-3: #1c5cab;
+  --band-neg-4: #2a78d6;
+}

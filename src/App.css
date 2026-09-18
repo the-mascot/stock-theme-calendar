@@ -1,0 +1,64 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-4) var(--space-6);
+}
+
+.app-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.app-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.app-section-title {
+  margin: 0;
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-subtitle);
+  color: var(--color-text-strong);
+}
+
+.app-section-desc {
+  margin: 0;
+  font-size: 15px;
+  color: var(--color-text-subtle);
+}
+
+.app-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--space-4);
+}
+
+.app-loading {
+  font-size: 15px;
+  color: var(--color-text-subtle);
+}
+
+.app-error {
+  font-size: 15px;
+  color: var(--color-danger);
+  text-align: center;
+}
+
+/* 등락 톤 유틸 — 여러 컴포넌트가 공유 */
+.tone-up {
+  color: var(--up-ink);
+}
+
+.tone-down {
+  color: var(--down-ink);
+}
+
+.tone-flat {
+  color: var(--color-text-hint);
+}

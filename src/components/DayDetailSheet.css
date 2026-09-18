@@ -1,0 +1,151 @@
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--dim);
+  display: flex;
+  align-items: flex-end;
+  z-index: 100;
+}
+
+.sheet {
+  width: 100%;
+  max-height: 80vh;
+  background: var(--color-bg);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.16);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-4) var(--space-3);
+}
+
+.sheet-title {
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-subtitle);
+  color: var(--color-text-strong);
+}
+
+.sheet-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: -10px -10px -10px 0;
+  border: 0;
+  border-radius: 22px;
+  background: transparent;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+}
+
+.sheet-idx {
+  display: flex;
+  gap: var(--space-2);
+  padding: 0 var(--space-4) var(--space-3);
+}
+
+.sheet-idx-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--color-bg-canvas);
+  border-radius: 10px;
+  padding: var(--space-2) var(--space-3);
+}
+
+.sheet-idx-label {
+  font-size: 13px;
+  color: var(--color-text-subtle);
+}
+
+.sheet-idx-value {
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.sheet-list {
+  overflow-y: auto;
+  padding: 0 var(--space-4) var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border-top: 1px solid var(--color-bg-canvas);
+  padding-top: var(--space-3);
+}
+
+.sheet-empty {
+  font-size: 15px;
+  color: var(--color-text-hint);
+  padding: var(--space-4) 0;
+}
+
+.sheet-row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.sheet-rank {
+  width: 20px;
+  flex-shrink: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-hint);
+  font-variant-numeric: tabular-nums;
+}
+
+.sheet-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sheet-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.sheet-row-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-strong);
+}
+
+.sheet-row-chip {
+  flex-shrink: 0;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--band-chip-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.sheet-row-sub {
+  font-size: 13px;
+  color: var(--color-text-hint);
+}
+
+.sheet-row-top-stocks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: 2px;
+}
+
+.sheet-stock {
+  font-size: 13px;
+  color: var(--color-text-subtle);
+}
