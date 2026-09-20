@@ -15,24 +15,21 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: 체크아웃
         uses: actions/checkout@v4
 
-      - name: Python 설정
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
       - name: 의존성 설치
-        run: pip install requests pyyaml
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install -q requests pyyaml
 
       - name: 배치 실행
         env:
           TOSS_CLIENT_ID: ${{ secrets.TOSS_CLIENT_ID }}
           TOSS_CLIENT_SECRET: ${{ secrets.TOSS_CLIENT_SECRET }}
-        run: python Build.py --daily
+        run: .venv/bin/python Build.py --daily
 
       - name: 변경분 커밋 · 푸시
         run: |
