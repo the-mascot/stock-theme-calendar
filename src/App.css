@@ -94,15 +94,54 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding-top: var(--space-3);
+  padding-top: var(--space-2);
   border-top: 1px solid var(--color-border);
+}
+
+/* 기준 종목 시트를 여는 줄 — 푸터 첫 줄. 44px 터치 타깃을 채운다. */
+.app-footer-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-default);
+  text-align: left;
+  cursor: pointer;
+}
+
+.app-footer-link svg {
+  flex-shrink: 0;
+  color: var(--color-text-hint);
+}
+
+/* 주의 문구 — 점 하나로 두 문단을 구분한다. 여러 줄로 접혀도 점 아래로
+   글이 들어가지 않게 들여쓰기를 준다. */
+.app-footer-notes {
+  margin: 0;
+  padding: 0 0 0 1.1em;
+  list-style: disc outside;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .app-footer-text {
   margin: 0;
   font-size: 13px;
+  line-height: 1.5;
   color: var(--color-text-hint);
-  text-align: center;
+}
+
+.app-footer-notes::marker,
+.app-footer-text::marker {
+  color: var(--color-text-disabled);
 }
 
 /* 등락 톤 유틸 — 여러 컴포넌트가 공유 */

@@ -28,3 +28,6 @@ dist-ssr
 
 # Apps in Toss design-guide failure trace
 .ait-design-guide-failed
+
+.verify_cache.json
+verify_report.md

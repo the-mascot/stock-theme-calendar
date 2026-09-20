@@ -6,6 +6,8 @@ import { DayDetailSheet } from './components/DayDetailSheet';
 import { IndexStrip } from './components/IndexStrip';
 import { MonthNav } from './components/MonthNav';
 import { Segmented } from './components/Segmented';
+import { ChevronRight } from './components/icons';
+import { ThemeBasketSheet } from './components/ThemeBasketSheet';
 import { ThemeCalendar } from './components/ThemeCalendar';
 import { ThemeHeatmap } from './components/ThemeHeatmap';
 import { WeakThemes } from './components/WeakThemes';
@@ -22,6 +24,7 @@ function App() {
   const [indexError, setIndexError] = useState<string | null>(null);
   const [mode, setMode] = useState<ValueMode>('rel');
   const [selectedDay, setSelectedDay] = useState<DayData | null>(null);
+  const [basketOpen, setBasketOpen] = useState(false);
   // 저조 테마 표는 리워드 광고를 본 뒤 열린다. 월을 넘겨도 다시 보게 하지 않도록 여기서 들고 있는다.
   const [weakUnlocked, setWeakUnlocked] = useState(false);
 
@@ -167,9 +170,17 @@ function App() {
       <BannerAd />
 
       <footer className="app-footer">
-        <p className="app-footer-text">이 정보는 참고용으로 제공되며, 투자 판단과 그 결과에 대한 책임은 본인에게 있습니다.</p>
-        <p className="app-footer-text">매일 정규장 마감(오후 3시 30분) 후, 오후 4시경 업데이트돼요.</p>
+        <button type="button" className="app-footer-link" onClick={() => setBasketOpen(true)}>
+          <span>테마 기준 종목 보기</span>
+          <ChevronRight size={16} />
+        </button>
+        <ul className="app-footer-notes">
+          <li className="app-footer-text">이 정보는 참고용으로 제공되며, 투자 판단과 그 결과에 대한 책임은 본인에게 있습니다.</li>
+          <li className="app-footer-text">매일 정규장 마감(오후 3시 30분) 후, 오후 4시경 업데이트돼요.</li>
+        </ul>
       </footer>
+
+      {basketOpen && <ThemeBasketSheet onClose={() => setBasketOpen(false)} />}
 
       {selectedDay && (
         <DayDetailSheet

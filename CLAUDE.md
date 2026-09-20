@@ -12,10 +12,13 @@
 ```
 toss/
 ├── Build.py          # 토스증권 API → 월별 정적 JSON
+├── verify.py         # 바스켓 상관계수 검증 → verify_report.md + data/themes.json
 ├── themes.yaml       # 테마 바스켓 정의 (손으로 관리)
+├── themes-reference.md  # 바스켓 정의서 — 종목별 선정 사유·제외 사유
 ├── .env              # TOSS_CLIENT_ID / TOSS_CLIENT_SECRET  (커밋 금지, gitignore됨)
 ├── data/              # GitHub Pages 루트 (repo root를 그대로 서빙)
 │   ├── index.json
+│   ├── themes.json    # 기준 종목 + 응집도 (앱 푸터 시트가 fetch)
 │   └── YYYY-MM.json   × 26개월
 ├── src/               # 미니앱 화면 (Apps in Toss web-framework, React)
 └── .github/workflows/daily-batch.yml   # 평일 KST 16시 자동 배치
@@ -29,8 +32,20 @@ JSON을 커밋하고, GitHub Pages가 repo root를 그대로 서빙하고, 미�
 python Build.py --backfill 2y      # 최초 1회
 python Build.py --daily            # 매일 (GitHub Actions가 자동 실행)
 python Build.py --daily --dry-run  # 파일 안 쓰고 결과만
+python verify.py                   # 바스켓 검증 (themes.yaml 바꿀 때마다)
+python verify.py --offline         # 직전 캐시 재사용, API 호출 없음
 npm run dev                        # 미니앱 로컬 실행 (src/)
 ```
+
+**`themes.yaml`을 고치면 세 개를 같이 돌려야 한다** — `Build.py --backfill`
+(과거 집계 다시), `verify.py`(응집도 + `data/themes.json`), 그리고 커밋.
+`verify.py`를 빼먹으면 앱 푸터의 기준 종목표만 옛 바스켓으로 남아 조용히
+어긋난다. 콘솔이 cp949라 한글 로그에서 터지면 `PYTHONIOENCODING=utf-8`을 앞에
+붙인다.
+
+`npm run dev`는 데이터를 GitHub Pages에서 받는다. 아직 push 안 한 `data/`로
+로컬 확인하려면 CORS 헤더 붙인 정적 서버를 띄우고
+`VITE_DATA_BASE_URL=http://127.0.0.1:8787/data npm run dev` 로 실행한다.
 
 GitHub Pages 소스를 **"/ (root)"**로 설정해야 한다 — `docs/` 폴더를 없애고
 `data/`를 repo root로 옮겼기 때문에, Pages 설정이 예전 `/docs` 소스로 남아있으면
@@ -63,6 +78,28 @@ GitHub Pages 소스를 **"/ (root)"**로 설정해야 한다 — `docs/` 폴더�
 - `n` — 그날 유효했던 종목 수. 낮으면 신뢰도가 낮으니 UI에 같이 노출할 것
 - `top` — `[종목코드, 등락률]` 상위 5개. 종목명은 `stocks` 맵에서 조회
 - `lead` — `rel` 기준 1등 테마. UI에서 기준을 바꾸면 다시 뽑아야 한다
+
+`data/themes.json` — `verify.py`가 낸다. `themes.yaml`의 **전체 바스켓이
+프론트로 내려가는 유일한 경로**다(`YYYY-MM.json`의 `stocks`는 그날 상위 5개만
+담는다):
+
+```json
+{
+  "generatedAt": "2026-09-20T22:55:21+09:00",
+  "period": "1y",
+  "thresholds": { "good": 0.6, "watch": 0.3 },
+  "themes": [{
+    "id": "semi", "name": "반도체", "cohesion": 0.72,
+    "stocks": [{ "code": "039030", "name": "이오테크닉스", "r": 0.78, "n": 265 }]
+  }]
+}
+```
+
+- `r` — 그 종목 등락률 vs **자기를 뺀** 같은 테마 평균의 상관계수 (leave-one-out)
+- `cohesion` — 바스켓 멤버 `r`의 평균. 테마가 한 몸처럼 움직인 정도
+- `thresholds` — 판정 경계. 앱이 이 값을 읽어 색·범례를 그리므로 기준을
+  바꿀 땐 `verify.py`의 `GOOD`/`WATCH`만 고치면 UI가 따라온다
+- 거래일이 `MIN_DAYS`(60) 미만이면 `r`은 `null`
 
 ## 토스증권 Open API
 
@@ -101,15 +138,22 @@ GitHub Pages 소스를 **"/ (root)"**로 설정해야 한다 — `docs/` 폴더�
 
 ## 테마 바스켓 선정 기준
 
-시총순이 **아니다**. `stock-theme-calendar-app/themes.yaml` 주석에도 있지만:
+시총순이 **아니다**. `themes.yaml` 주석에도 있지만:
 
 1. **순도** — 그 테마 뉴스에 반응하는 종목. 한미반도체 > 삼성전자
 2. **유동성** — 거래 얇으면 등락률이 튄다
-3. **8개 이상** — 개별 이슈 희석
+3. **8개 권장, 최소 6개** — 순도 낮은 종목으로 억지로 채우지 않는다
 4. **초대형주는 1~2개까지** — 테마 신호가 시장 신호에 묻힌다
+5. **중복 금지** — 지주-자회사처럼 똑같이 움직이는 건 하나만
 
-바스켓은 데이터로 검증할 수 있다. 종목별로 "소속 테마 평균과의 상관계수"를 뽑아
-상관 낮은 종목은 빼거나 다른 테마로 옮기면 된다. (`verify.py` — 아직 없음)
+종목별 선정·제외 사유는 `themes-reference.md`에 적는다. 2026-09-20 개편으로
+92 → **97종목**(코드 오류 1건 수정, 2차전지 → 2차전지·ESS 등).
+
+검증은 `verify.py`가 한다 — 종목 등락률 vs **자기를 뺀** 같은 테마 평균의
+상관계수 `r`, 그 평균이 테마 **응집도**. 산출물은 사람이 읽는
+`verify_report.md`(재검토 대상 요약 포함)와 앱이 읽는 `data/themes.json`.
+다른 테마 평균과의 `r`이 더 높으면 "더 맞는 테마"로 표시되니, 그런 종목은
+옮기거나 뺀다. 현재 응집도 0.65~0.82, 재검토 대상 15종목(전부 ⚠️, ❌ 없음).
 
 ## 남은 작업
 
@@ -121,6 +165,10 @@ GitHub Pages 소스를 **"/ (root)"**로 설정해야 한다 — `docs/` 폴더�
   기본 뷰로 바꿔 해소. 지수 3종은 칸에서 빼서 월 상단 요약으로 이동
 - **GitHub Actions** — `.github/workflows/daily-batch.yml`, 평일 KST 16시
   이후(`Build.py --daily`) 자동 실행 + `data/` 변경분 자동 커밋
+- **`verify.py`** — 바스켓 상관계수 검증. `verify_report.md` + `data/themes.json`
+- **기준 종목 시트** — 푸터 첫 줄 "테마 기준 종목 보기" → 12개 테마의 구성
+  종목·상관도·응집도를 표로 (`src/components/ThemeBasketSheet.tsx`). 시트를
+  열 때 `themes.json`을 한 번만 받아 캐시한다(`fetchThemeBaskets`)
 
 **SDK: WebView로 결정**
 
@@ -135,7 +183,10 @@ GitHub Pages 소스를 **"/ (root)"**로 설정해야 한다 — `docs/` 폴더�
 
 **나중**
 
-- `verify.py` — 바스켓 상관계수 검증
+- 재검토 대상 15종목 정리 — `verify_report.md` 맨 아래 표. 옮길지 뺄지는
+  숫자만 보고 자동으로 정하지 말 것(순도·유동성이 우선)
+- `WeakThemes`의 테마별 종목 시트(`ThemeStocksSheet`)는 아직 그달 상위 등락
+  종목만 모은 근사치다. `themes.json`이 생겼으니 실제 바스켓으로 바꿀 수 있다
 - 앱인토스 등록 → 심사
 
 ## 정책 (참고만, 개발 막지 말 것)
