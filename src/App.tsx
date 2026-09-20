@@ -120,16 +120,17 @@ function App() {
       <BannerAd />
 
       <section className="app-section app-intro">
-          <h2 className="app-intro-title">테마 캘린더가 뭔가요?</h2>
-          <p className="app-section-desc">
-              매일 코스피·코스닥에서 강했던 테마를 모아 보여줘요.{' '}
-              <strong className="app-intro-highlight">
-                  주도 테마가 며칠씩 이어지기도 하고, 힘이 다른 테마로 옮겨가기도 해요.
-              </strong>{' '}
-              <strong>
-              이 캘린더로 그 흐름을 한눈에 잡아보세요.
-              </strong>
-          </p>
+        <span className="app-intro-emoji tf" aria-hidden="true">
+          📅
+        </span>
+        <h2 className="app-intro-title">테마 캘린더가 뭔가요?</h2>
+        <p className="app-intro-text">
+          매일 코스피·코스닥에서 강했던 테마를 모아 보여줘요.{' '}
+          <strong className="app-intro-highlight">
+            주도 테마가 며칠씩 이어지기도 하고, 힘이 다른 테마로 옮겨가기도 해요.
+          </strong>{' '}
+          <strong>이 캘린더로 그 흐름을 한눈에 잡아보세요.</strong>
+        </p>
       </section>
 
       <section className="app-section" aria-label="테마 캘린더">

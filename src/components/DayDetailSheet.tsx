@@ -74,9 +74,13 @@ export function DayDetailSheet({ day, themes, stocks, mode, onClose }: DayDetail
                       {formatPct(v)}
                     </span>
                   </div>
-                  <div className="sheet-row-sub">
-                    <span>{stat.n}종목 평균{stat.n < 5 ? ' · 신뢰도 낮음' : ''}</span>
-                  </div>
+                  {/* 평소엔 종목 수를 감춘다 — 바로 아래 상위 종목 목록을 설명하는 줄로 읽혀서 헷갈렸다.
+                      유효 종목이 모자라 값이 흔들릴 때만 경고로 띄운다. */}
+                  {stat.n < 5 && (
+                    <div className="sheet-row-sub">
+                      <span>신뢰도 낮음 · 유효 종목 {stat.n}개</span>
+                    </div>
+                  )}
                   {stat.top.length > 0 && (
                     <div className="sheet-row-top-stocks">
                       {stat.top.slice(0, 3).map(([code, pct]) => (
