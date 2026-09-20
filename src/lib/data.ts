@@ -15,6 +15,24 @@ export async function fetchMonth(month: string): Promise<MonthData> {
   return res.json();
 }
 
+/** 여러 달을 한 번에 — 중장기 패널이 쓴다. 이미 받은 달은 캐시에서 준다.
+    첫 화면에는 필요 없고 리워드를 본 뒤에만 부르므로 초기 로딩에 영향이 없다. */
+const monthCache = new Map<string, Promise<MonthData>>();
+
+export function fetchMonths(months: string[]): Promise<MonthData[]> {
+  return Promise.all(
+    months.map((m) => {
+      let p = monthCache.get(m);
+      if (!p) {
+        p = fetchMonth(m);
+        monthCache.set(m, p);
+        p.catch(() => monthCache.delete(m));
+      }
+      return p;
+    }),
+  );
+}
+
 /** 기준 종목표 — 첫 화면에 필요 없으니 시트를 열 때 한 번만 받는다. */
 let basketCache: Promise<ThemeBasketFile> | null = null;
 

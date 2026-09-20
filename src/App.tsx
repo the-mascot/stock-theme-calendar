@@ -4,7 +4,9 @@ import { BannerAd } from './components/BannerAd';
 import { CalendarGuide } from './components/CalendarGuide';
 import { DayDetailSheet } from './components/DayDetailSheet';
 import { IndexStrip } from './components/IndexStrip';
+import { LeadShare } from './components/LeadShare';
 import { MonthNav } from './components/MonthNav';
+import { RewardGate } from './components/RewardGate';
 import { Segmented } from './components/Segmented';
 import { ChevronRight } from './components/icons';
 import { ThemeBasketSheet } from './components/ThemeBasketSheet';
@@ -25,8 +27,9 @@ function App() {
   const [mode, setMode] = useState<ValueMode>('rel');
   const [selectedDay, setSelectedDay] = useState<DayData | null>(null);
   const [basketOpen, setBasketOpen] = useState(false);
-  // 저조 테마 표는 리워드 광고를 본 뒤 열린다. 월을 넘겨도 다시 보게 하지 않도록 여기서 들고 있는다.
-  const [weakUnlocked, setWeakUnlocked] = useState(false);
+  // 심화 분석 두 섹션은 리워드 광고 하나로 함께 열린다(정책: 동일 화면에 같은
+  // 포맷 광고 2개 금지). 월을 넘겨도 다시 보게 하지 않도록 상태를 여기서 들고 있는다.
+  const [analysisUnlocked, setAnalysisUnlocked] = useState(false);
 
   const targetMonth = index?.months[monthIdx];
   const currentResult = monthResult?.month === targetMonth ? monthResult : null;
@@ -111,18 +114,25 @@ function App() {
         )}
       </div>
 
+      {/* 배너는 상단 요약 바로 아래. 정책상 금지되는 건 '진입 직후 전면 배너'라
+          인라인 리스트형은 괜찮고, 아래쪽에 두면 '테마 기준 종목 보기' 버튼과
+          인접해서 의도치 않은 클릭 유발 구조로 읽힐 수 있어 위로 올렸다. */}
+      <BannerAd />
+
       <section className="app-section app-intro">
           <h2 className="app-intro-title">테마 캘린더가 뭔가요?</h2>
           <p className="app-section-desc">
               매일 코스피·코스닥에서 강했던 테마를 모아 보여줘요.{' '}
               <strong className="app-intro-highlight">
-                  강세장에서는 한 테마가 계속 오르기보다, 힘이 이 테마 저 테마로 옮겨 다니는 순환이 자주 나타나요.
+                  주도 테마가 며칠씩 이어지기도 하고, 힘이 다른 테마로 옮겨가기도 해요.
               </strong>{' '}
+              <strong>
               이 캘린더로 그 흐름을 한눈에 잡아보세요.
+              </strong>
           </p>
       </section>
 
-      <section className="app-section">
+      <section className="app-section" aria-label="테마 캘린더">
         <CalendarGuide />
         <div className="app-section-spaced">
           <Segmented
@@ -148,7 +158,7 @@ function App() {
       <section className="app-section">
         <h2 className="app-section-title">테마 순환 히트맵</h2>
         <p className="app-section-desc">
-          가로로 넘기면 그달 영업일 전체를 볼 수 있어요. 강세 구간이 행을 옮겨 다니면 그게 순환이에요.
+          가로로 넘기면 그달 영업일 전체를 볼 수 있어요. 한 행에 붉은 칸이 이어지면 주도 테마가 유지된 거고, 다른 행으로 옮겨가면 순환이에요.
         </p>
         <ThemeHeatmap
           themes={monthData.themes}
@@ -158,16 +168,23 @@ function App() {
         />
       </section>
 
-      <WeakThemes
-        themes={monthData.themes}
-        days={monthData.days}
-        mode={mode}
-        stocks={monthData.stocks}
-        unlocked={weakUnlocked}
-        onUnlock={() => setWeakUnlocked(true)}
-      />
+      <RewardGate
+        unlocked={analysisUnlocked}
+        onUnlock={() => setAnalysisUnlocked(true)}
+        title="테마 심화 분석"
+        desc="이번 달 저조했던 테마와, 최근 6개월 코스피가 오른 날의 강세 테마를 함께 볼 수 있어요."
+        buttonLabel="광고 보고 분석 보기"
+        note="짧은 광고를 보고 확인해 보세요."
+      >
+        <WeakThemes
+          themes={monthData.themes}
+          days={monthData.days}
+          mode={mode}
+          stocks={monthData.stocks}
+        />
 
-      <BannerAd />
+        <LeadShare months={index.months} themes={index.themes} />
+      </RewardGate>
 
       <button type="button" className="app-basket-link" onClick={() => setBasketOpen(true)}>
         <span>테마 기준 종목 보기</span>

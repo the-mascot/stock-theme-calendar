@@ -24,7 +24,9 @@ function writeCollapsed(collapsed: boolean) {
   }
 }
 
-/** "테마 캘린더" 제목 줄 + 접었다 펼치는 "보는 법". 펼치면 기준(시장대비/원본) → 색 5단계·빗금 → 예시 칸 순서로 설명한다. */
+/** 접었다 펼치는 "테마 캘린더 보는 법".
+    섹션 제목(h2 "테마 캘린더")은 바로 아래 토글 문구와 거의 같은 말이라 뺀다 —
+    화면에서는 안 보이고 section의 aria-label로만 남긴다(App.tsx). 펼치면 기준(시장대비/원본) → 색 5단계·빗금 → 예시 칸 순서로 설명한다. */
 export function CalendarGuide() {
   const [open, setOpen] = useState(() => !readCollapsed());
   const panelId = useId();
@@ -37,13 +39,10 @@ export function CalendarGuide() {
 
   return (
     <>
-      <div className="app-section-heading">
-        <h2 className="app-section-title">테마 캘린더</h2>
-        <button type="button" className="guide-toggle" aria-expanded={open} aria-controls={panelId} onClick={toggle}>
-          <span className="guide-toggle-label">테마 캘린더 보는 법</span>
-          {open ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-        </button>
-      </div>
+      <button type="button" className="guide-toggle" aria-expanded={open} aria-controls={panelId} onClick={toggle}>
+        <span className="guide-toggle-label">테마 캘린더 보는 법</span>
+        {open ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+      </button>
 
       {open && (
         <div id={panelId} className="guide-panel">

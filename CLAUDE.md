@@ -166,7 +166,17 @@ GitHub Pages 소스를 **"/ (root)"**로 설정해야 한다 — `docs/` 폴더�
 - **GitHub Actions** — `.github/workflows/daily-batch.yml`, 평일 KST 16시
   이후(`Build.py --daily`) 자동 실행 + `data/` 변경분 자동 커밋
 - **`verify.py`** — 바스켓 상관계수 검증. `verify_report.md` + `data/themes.json`
-- **기준 종목 시트** — 푸터 첫 줄 "테마 기준 종목 보기"(전체 12개,
+- **중장기 강세 테마** — 최근 6개월 코스피 **상승일**만 추려 테마별 1위 횟수·
+  점유율을 막대로 (`LeadShare`). 리워드 게이트 뒤에서 열리고 그때 6개월치
+  JSON을 받는다(gzip 약 54KB). 누적 등락률을 안 쓰는 건 장기 구간에서 변동성
+  큰 테마가 복리 손실로 불리해지기 때문 — `CALCULATIONS.md` 2-5 참고
+- **리워드 게이트는 화면에 하나뿐** (`RewardGate`) — 저조 테마 + 중장기 강세
+  테마를 한 번에 연다. **토스 애즈 SSP 정책이 "동일 화면에 동일 포맷 광고
+  2개 이상 배치"를 금지**하는데 이 앱은 스크롤 하나짜리 단일 화면이라,
+  섹션마다 리워드 버튼을 달면 그대로 위반이다(중대하면 단일 위반으로도 30일
+  제한). 배너는 포맷이 달라 함께 둬도 된다. 섹션이 더 늘어도 게이트는
+  `RewardGate` 하나 안에 넣을 것
+- **기준 종목 시트** — 본문 맨 아래 "테마 기준 종목 보기"(전체 12개,
   `ThemeBasketSheet`)와 저조 테마 탭(단일 테마, `ThemeStocksSheet`)이
   `ThemeBasketTable`로 같은 표를 그린다. 둘 다 `useThemeBaskets`로 같은
   `themes.json`을 보므로 종목이 어긋나지 않는다. 시트를 열 때 한 번만 받아

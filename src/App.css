@@ -25,8 +25,8 @@
 }
 
 .app-intro {
-  /* 페이지 맨 위 소개라, .app의 기본 section 간격 위에 여백을 더 준다. */
-  margin-top: var(--space-6);
+  /* 예전엔 페이지 맨 위라 .app의 section 간격(24px) 위에 32px를 더 줬는데,
+     배너가 위로 올라오면서 더 이상 첫 블록이 아니다 — 기본 간격만 쓴다. */
   gap: var(--space-3);
 }
 
@@ -49,13 +49,6 @@
   font-weight: 700;
 }
 
-/* 제목 아래에 보조 버튼이 한 줄 더 붙는 구조 — 제목과 버튼 사이를 12px 띄운다. */
-.app-section-heading {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-3);
-}
 
 .app-section-desc {
   margin: 0;
