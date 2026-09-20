@@ -5,6 +5,7 @@ import './Sheet.css';
 import './DayDetailSheet.css';
 import type { DayData, Theme, ValueMode } from '../lib/types';
 import { bandInk, bandVar, formatDayLabel, formatPct, toneOf } from '../lib/format';
+import { useBackClose } from '../lib/useBackClose';
 import { useBodyScrollLock } from '../lib/useBodyScrollLock';
 
 interface DayDetailSheetProps {
@@ -23,6 +24,7 @@ const IDX_LABELS: { key: keyof DayData['idx']; label: string }[] = [
 export function DayDetailSheet({ day, themes, stocks, mode, onClose }: DayDetailSheetProps) {
   const insets = getSafeAreaInsets();
   useBodyScrollLock();
+  useBackClose(onClose);
   const ranked = useMemo(() => {
     return themes
       .map((t) => ({ theme: t, stat: day.th[t.id] }))

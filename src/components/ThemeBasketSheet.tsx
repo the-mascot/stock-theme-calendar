@@ -5,6 +5,7 @@ import './ThemeBasketSheet.css';
 import { ThemeBasketTable } from './ThemeBasketTable';
 import { formatPeriod } from '../lib/basket';
 import { useThemeBaskets } from '../lib/useThemeBaskets';
+import { useBackClose } from '../lib/useBackClose';
 import { useBodyScrollLock } from '../lib/useBodyScrollLock';
 
 interface ThemeBasketSheetProps {
@@ -14,6 +15,7 @@ interface ThemeBasketSheetProps {
 export function ThemeBasketSheet({ onClose }: ThemeBasketSheetProps) {
   const insets = getSafeAreaInsets();
   useBodyScrollLock();
+  useBackClose(onClose);
   const { data, error, good, watch } = useThemeBaskets();
 
   return (

@@ -5,6 +5,7 @@ import './Sheet.css';
 import './ThemeStocksSheet.css';
 import { formatDayLabel, formatPct, toneOf } from '../lib/format';
 import type { DayData, Theme } from '../lib/types';
+import { useBackClose } from '../lib/useBackClose';
 import { useBodyScrollLock } from '../lib/useBodyScrollLock';
 
 interface ThemeStocksSheetProps {
@@ -20,6 +21,7 @@ interface ThemeStocksSheetProps {
 export function ThemeStocksSheet({ theme, days, stocks, onClose }: ThemeStocksSheetProps) {
   const insets = getSafeAreaInsets();
   useBodyScrollLock();
+  useBackClose(onClose);
   const latest = useMemo(
     () => [...days].reverse().find((d) => (d.th[theme.id]?.top.length ?? 0) > 0) ?? null,
     [days, theme.id],
