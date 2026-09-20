@@ -6,6 +6,10 @@
   display: flex;
   align-items: flex-end;
   z-index: 100;
+  /* 시트 안을 끝까지 스크롤한 뒤에도 그 힘이 뒤 화면으로 넘어가지 않게.
+     뒤 화면 잠금 자체는 lib/useBodyScrollLock.ts 가 맡는다. */
+  overscroll-behavior: contain;
+  touch-action: none;
 }
 
 .sheet {
@@ -17,6 +21,9 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  /* 오버레이에서 touch-action을 껐으니 시트 안에서는 세로 스크롤을 되살린다. */
+  touch-action: pan-y;
+  overscroll-behavior: contain;
 }
 
 .sheet-header {

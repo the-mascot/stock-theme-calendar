@@ -5,6 +5,7 @@ import './Sheet.css';
 import './ThemeStocksSheet.css';
 import { formatDayLabel, formatPct, toneOf } from '../lib/format';
 import type { DayData, Theme } from '../lib/types';
+import { useBodyScrollLock } from '../lib/useBodyScrollLock';
 
 interface ThemeStocksSheetProps {
   theme: Theme;
@@ -18,6 +19,7 @@ interface ThemeStocksSheetProps {
     가장 최근 영업일을 기준으로 보여 준다. */
 export function ThemeStocksSheet({ theme, days, stocks, onClose }: ThemeStocksSheetProps) {
   const insets = getSafeAreaInsets();
+  useBodyScrollLock();
   const latest = useMemo(
     () => [...days].reverse().find((d) => (d.th[theme.id]?.top.length ?? 0) > 0) ?? null,
     [days, theme.id],
