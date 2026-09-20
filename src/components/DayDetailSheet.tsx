@@ -1,9 +1,10 @@
 import { getSafeAreaInsets } from '@apps-in-toss/web-framework';
 import { useMemo } from 'react';
 import { Close } from './icons';
+import './Sheet.css';
 import './DayDetailSheet.css';
 import type { DayData, Theme, ValueMode } from '../lib/types';
-import { bandVar, formatDayLabel, formatPct, toneOf } from '../lib/format';
+import { bandInk, bandVar, formatDayLabel, formatPct, toneOf } from '../lib/format';
 
 interface DayDetailSheetProps {
   day: DayData;
@@ -16,7 +17,6 @@ interface DayDetailSheetProps {
 const IDX_LABELS: { key: keyof DayData['idx']; label: string }[] = [
   { key: 'kospi', label: '코스피' },
   { key: 'kosdaq', label: '코스닥' },
-  { key: 'nasdaq', label: '나스닥' },
 ];
 
 export function DayDetailSheet({ day, themes, stocks, mode, onClose }: DayDetailSheetProps) {
@@ -68,7 +68,7 @@ export function DayDetailSheet({ day, themes, stocks, mode, onClose }: DayDetail
                 <div className="sheet-row-main">
                   <div className="sheet-row-top">
                     <span className="sheet-row-name">{theme.name}</span>
-                    <span className="sheet-row-chip" style={{ background: bandVar(v) }}>
+                    <span className="sheet-row-chip" style={{ background: bandVar(v), color: bandInk(v) }}>
                       {formatPct(v)}
                     </span>
                   </div>

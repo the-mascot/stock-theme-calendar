@@ -1,28 +1,63 @@
 .legend {
   display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.legend-scale {
+  display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: var(--space-2);
-  font-size: 13px;
-  color: var(--color-text-hint);
 }
 
 .legend-label {
+  font-size: 13px;
+  color: var(--color-text-default);
   white-space: nowrap;
+}
+
+.legend-bar-group {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .legend-swatches {
   display: flex;
-  gap: 2px;
+  gap: 3px;
 }
 
-.legend-swatches i {
-  display: block;
-  width: 16px;
-  height: 12px;
-  border-radius: 2px;
+.legend-swatch {
+  flex: 1;
+  height: 16px;
+  min-width: 0;
+  border-radius: 4px;
+}
+
+/* 스와치 경계에 %값을 찍는 눈금줄 — 각 span은 legend-bar-group 폭 기준 절대
+   위치(left: %)로 배치된다(Legend.tsx TICKS). */
+.legend-ticks {
+  position: relative;
+  height: 14px;
+}
+
+.legend-ticks span {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: var(--color-text-hint);
+  white-space: nowrap;
 }
 
 .legend-note {
-  width: 100%;
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-subtle);
+}
+
+.legend-hint {
+  margin-top: var(--space-2);
 }

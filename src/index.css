@@ -1,8 +1,6 @@
 @import './styles/base.css';
 @import './styles/chart-colors.css';
 :root {
-  font-family: sans-serif;
-  color: #333d4b;
   color-scheme: light;
   background: #ffffff;
 }
@@ -24,7 +22,10 @@ my-element {
   display: block;
   width: 100%;
   min-height: 100vh;
-  padding: 24px;
+  /* 캘린더가 5열 그리드라 좌우 여백이 조금만 좁아져도 칸 폭이 눈에 띄게
+     넓어진다 — 24px에서 16px로 줄였다(2026-09-18 사용자 피드백: 칩 글자가
+     칸 경계에 바짝 붙어 보임). */
+  padding: 16px;
 }
 
 @media (min-width: 481px) {

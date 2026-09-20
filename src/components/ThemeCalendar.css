@@ -1,6 +1,10 @@
+.cal {
+  margin-top: 10px;
+}
+
 .cal-dow {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 4px;
   margin-bottom: var(--space-2);
 }
@@ -8,57 +12,109 @@
 .cal-dow-cell {
   text-align: center;
   font-size: 13px;
-  color: var(--color-text-hint);
+  color: var(--color-text-default);
   padding: 4px 0;
-}
-
-.cal-dow-cell:first-child {
-  color: var(--up-ink);
-}
-
-.cal-dow-cell:last-child {
-  color: var(--down-ink);
 }
 
 .cal-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 4px;
 }
 
 .cal-cell {
-  min-height: 64px;
-  border-radius: 10px;
-  background: var(--color-bg-canvas);
-  border: 0;
-  padding: 6px 4px;
+  min-width: 0;
+  min-height: 128px;
+  border-radius: 14px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  padding: 7px 4px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 4px;
   cursor: pointer;
+  /* 칸 안 글자가 어떤 경우에도 둥근 카드 바깥으로 삐져나오지 않게 한다. */
+  overflow: hidden;
 }
 
 .cal-cell-nodata {
-  background: transparent;
+  background: var(--color-bg-canvas);
+  border-color: transparent;
+  box-shadow: none;
   cursor: default;
 }
 
+.cal-cell-blank {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  cursor: default;
+}
+
+.cal-cell-today {
+  border: 1.5px solid var(--color-text-strong);
+}
+
 .cal-daynum {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-default);
+}
+
+.cal-cell-today .cal-daynum {
+  color: var(--color-text-strong);
+  font-weight: 700;
+}
+
+.cal-idx {
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-family: var(--font-mono);
   font-size: 13px;
-  color: var(--color-text-subtle);
-  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.cal-idx span {
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .cal-chip {
+  margin-top: 5px;
+  min-width: 0;
   width: 100%;
-  border-radius: 6px;
-  padding: 3px 4px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--band-chip-ink);
+  min-height: 54px;
+  border-radius: 10px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
   text-align: center;
-  white-space: nowrap;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+.cal-chip-name {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  /* 대부분의 테마명은 2줄 안에 다 들어간다 — 아주 긴 이름만을 위한 안전판. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+.cal-chip-pct {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
 }

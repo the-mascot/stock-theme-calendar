@@ -1,9 +1,48 @@
 @import url("https://cdn.jsdelivr.net/gh/toss/tossface/dist/tossface.css");
 @import "./tokens.css";
 
-/* CDN이 막힌 환경에서는 에러 없이 시스템 이모지 폰트로 조용히 대체된다.
-   토스 앱 WebView 안에서 jsdelivr CDN 도달성은 단정하지 않는다 — 실제 확인은
-   /ait:test-on-device(번들 업로드 → 콘솔 컴파일 확인 → 토스 앱에서 열기)로 한다. */
+/* CDN이 막힌 환경에서는 에러 없이 시스템 폰트로 조용히 대체된다(font-display:
+   swap + 폴백 스택). 토스 앱 WebView 안에서 CDN 도달성은 단정하지 않는다 —
+   실제 확인은 /ait:test-on-device(번들 업로드 → 콘솔 컴파일 확인 → 토스 앱에서
+   열기)로 한다. */
+
+/* Pretendard — 자체 호스팅. variable 폰트 한 파일 대신, 프로젝트가 실제로
+   쓰는 4개 weight(400/500/600/700)만 static 파일로 넣는다 — variable 폰트는
+   Chrome에서 font-weight 범위 선언과 얽혀 로드가 조용히 실패하는 문제가
+   있었고, static per-weight 파일이 WebView 호환성도 더 안정적이다. 파일은
+   src/assets/fonts/Pretendard-{Regular,Medium,SemiBold,Bold}.woff2
+   (공식 배포: https://github.com/orioncactus/pretendard). */
+@font-face {
+  font-family: "Pretendard";
+  src: url("../assets/fonts/Pretendard-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("../assets/fonts/Pretendard-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("../assets/fonts/Pretendard-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("../assets/fonts/Pretendard-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 *,
 *::before,
@@ -11,9 +50,20 @@
   box-sizing: border-box;
 }
 
+/* 버튼·인풋은 기본적으로 body의 font-family를 상속하지 않는다(브라우저
+   기본 UI 폰트를 쓴다) — 앱 전체에서 하나로 통일하려면 명시적으로 풀어줘야
+   한다. */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
 body {
   margin: 0;
-  font-family: "Tossface", -apple-system, system-ui, "Malgun Gothic", sans-serif;
+  font-family: var(--font-sans);
   word-break: keep-all;
   overflow-wrap: break-word;
   letter-spacing: 0;

@@ -1,32 +1,42 @@
 import './IndexStrip.css';
-import type { DayData } from '../lib/types';
+import type { Theme } from '../lib/types';
 import { formatPct, toneOf } from '../lib/format';
 
 interface IndexStripProps {
-  day: DayData | null;
+  kospi: number | null;
+  kosdaq: number | null;
+  lead: { theme: Theme; value: number | null } | null;
+  /** 값 라벨 — 하루 기준이면 "종목 평균 등락", 한 달 기준이면 "일평균 등락". */
+  leadLabel: string;
 }
 
-const LABELS: { key: keyof DayData['idx']; label: string }[] = [
-  { key: 'kospi', label: '코스피' },
-  { key: 'kosdaq', label: '코스닥' },
-  { key: 'nasdaq', label: '나스닥' },
-];
+export function IndexStrip({ kospi, kosdaq, lead, leadLabel }: IndexStripProps) {
+  const indices = [
+    { label: '코스피', value: kospi },
+    { label: '코스닥', value: kosdaq },
+  ];
 
-export function IndexStrip({ day }: IndexStripProps) {
-  if (!day) {
-    return <div className="index-strip index-strip-empty">이 달 지수 데이터가 없어요</div>;
-  }
   return (
     <div className="index-strip">
-      {LABELS.map(({ key, label }) => {
-        const v = day.idx[key];
-        return (
-          <div key={key} className="index-strip-item">
+      <div className="index-strip-row">
+        {indices.map(({ label, value }) => (
+          <div key={label} className="index-strip-item">
             <span className="index-strip-label">{label}</span>
-            <span className={`index-strip-value tone-${toneOf(v)}`}>{formatPct(v)}</span>
+            <span className={`index-strip-value tone-${toneOf(value)}`}>{formatPct(value)}</span>
           </div>
-        );
-      })}
+        ))}
+      </div>
+      <div className="index-strip-divider" />
+      <div className="index-strip-row">
+        <div className="index-strip-item">
+          <span className="index-strip-label">1위 테마</span>
+          <span className="index-strip-value index-strip-value-name">{lead ? lead.theme.name : '–'}</span>
+        </div>
+        <div className="index-strip-item">
+          <span className="index-strip-label">{leadLabel}</span>
+          <span className={`index-strip-value tone-${toneOf(lead?.value)}`}>{formatPct(lead?.value)}</span>
+        </div>
+      </div>
     </div>
   );
 }

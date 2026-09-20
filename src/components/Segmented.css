@@ -1,6 +1,6 @@
 .segmented {
-  display: inline-flex;
-  border: 1px solid var(--color-bg-canvas);
+  display: flex;
+  width: 100%;
   background: var(--color-bg-canvas);
   border-radius: 10px;
   padding: 2px;
@@ -8,20 +8,22 @@
 }
 
 .segmented-btn {
+  flex: 1;
   font: inherit;
   font-size: 14px;
   font-weight: 600;
-  color: var(--color-text-subtle);
+  color: var(--color-text-default);
   background: transparent;
   border: 0;
   border-radius: 8px;
   padding: 8px 12px;
   min-height: 44px;
   cursor: pointer;
+  text-align: center;
 }
 
 .segmented-btn[aria-pressed='true'] {
   background: var(--color-bg);
   color: var(--color-text-strong);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-card);
 }

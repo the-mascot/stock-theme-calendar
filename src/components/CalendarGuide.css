@@ -1,0 +1,68 @@
+/* 제목 밑 한 줄 — 밑줄 텍스트 + 오른쪽 화살표. 접힘/펼침은 화살표 방향으로 알려 준다.
+   배경 없이 텍스트만 보이지만 터치 영역은 44px을 유지한다. */
+.guide-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  gap: var(--space-1);
+  min-height: 44px;
+  margin-top: calc(-1 * var(--space-2));
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-default);
+  font: inherit;
+  font-size: 15px;
+  font-weight: var(--font-weight-subtitle);
+  word-break: keep-all;
+  cursor: pointer;
+}
+
+.guide-toggle-label {
+  /* 밑줄이 줄 전체가 아니라 글자에만 걸리도록 */
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.guide-toggle:active {
+  opacity: 0.85;
+}
+
+/* 펼친 영역 — 설명 3덩어리를 얇은 구분선으로 나눈 카드. 그림자는 쓰지 않는다(상시 요소). */
+.guide-panel {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-bg);
+}
+
+.guide-block {
+  padding: var(--space-4) 0;
+}
+
+.guide-block + .guide-block {
+  border-top: 1px solid var(--color-bg-canvas);
+}
+
+.guide-modes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.guide-mode-name {
+  margin: 0;
+  font-size: var(--font-size-body-small);
+  font-weight: 700;
+  color: var(--color-text-strong);
+}
+
+.guide-mode-desc {
+  margin: 2px 0 0;
+  font-size: var(--font-size-body-small);
+  color: var(--color-text-default);
+}

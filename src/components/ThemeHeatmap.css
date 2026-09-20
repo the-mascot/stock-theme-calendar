@@ -2,9 +2,16 @@
   display: flex;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border-radius: 12px;
-  background: var(--color-bg-canvas);
-  padding: var(--space-2);
+  border-radius: 14px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  /* 좌우 padding을 컨테이너에 직접 주지 않는다 — 가로 스크롤 시 그 padding이
+     sticky 라벨의 배경 바깥(스크롤 컨테이너의 진짜 왼쪽 끝)에 남아, 그 틈으로
+     스크롤된 색칠 칸이 라벨 옆에 비쳐 보이는 버그가 있었다. 좌측은
+     .heatmap-labels의 padding-left로, 우측은 마지막 칼럼의 margin-right로
+     대신 준다. */
+  padding: var(--space-2) 0;
 }
 
 .heatmap-labels {
@@ -15,9 +22,18 @@
   flex-direction: column;
   gap: 2px;
   flex-shrink: 0;
-  width: 100px;
+  /* 가장 긴 테마명("휴머노이드·로봇" 등)이 잘리지 않게 라벨 폭을 글자에 맞춘다.
+     테마가 늘어도 max-width에서만 말줄임(…)으로 안전판이 걸린다. */
+  width: max-content;
+  min-width: 100px;
+  max-width: 136px;
+  padding-left: var(--space-2);
   padding-right: var(--space-2);
-  background: var(--color-bg-canvas);
+  background: var(--color-bg);
+  border-right: 1px solid var(--color-border);
+  /* 가로 스크롤 중 뒤에 깔린 색칠 칸이 스티키 라벨 뒤로 살짝 비치는
+     렌더링 seam이 있었다 — 별도 컴포지팅 레이어로 띄워서 막는다. */
+  will-change: transform;
 }
 
 .heatmap-row-label {
@@ -25,7 +41,7 @@
   display: flex;
   align-items: center;
   font-size: 13px;
-  color: var(--color-text-subtle);
+  color: var(--color-text-default);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -48,6 +64,10 @@
   cursor: pointer;
 }
 
+.heatmap-col:last-child {
+  margin-right: var(--space-2);
+}
+
 .heatmap-cell {
   height: 20px;
   width: 100%;
@@ -57,7 +77,7 @@
 .heatmap-cell-na {
   background-image: repeating-linear-gradient(
     45deg,
-    var(--color-bg) 0 2px,
+    var(--color-bg-canvas) 0 2px,
     transparent 2px 4px
   );
 }
@@ -68,6 +88,6 @@
   align-items: center;
   justify-content: center;
   font-size: 13px;
-  color: var(--color-text-hint);
+  color: var(--color-text-subtle);
   font-variant-numeric: tabular-nums;
 }

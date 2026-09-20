@@ -40,4 +40,3 @@ export interface IndexFile {
 }
 
 export type ValueMode = 'rel' | 'chg';
-export type ViewMode = 'heat' | 'calendar';
