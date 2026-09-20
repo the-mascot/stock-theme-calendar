@@ -98,25 +98,28 @@
   border-top: 1px solid var(--color-border);
 }
 
-/* 기준 종목 시트를 여는 줄 — 푸터 첫 줄. 44px 터치 타깃을 채운다. */
-.app-footer-link {
+/* 기준 종목 시트를 여는 줄 — 본문 맨 아래(광고 밑)에 카드처럼 놓인다.
+   주의 문구(푸터)와 달리 누를 수 있는 항목이라 테두리로 구분하고, 터치
+   타깃 48px를 채운다. */
+.app-basket-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
   width: 100%;
-  min-height: 44px;
-  padding: 0;
-  border: 0;
-  background: transparent;
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-bg);
   font-size: 15px;
   font-weight: 600;
-  color: var(--color-text-default);
+  color: var(--color-text-strong);
   text-align: left;
   cursor: pointer;
 }
 
-.app-footer-link svg {
+.app-basket-link svg {
   flex-shrink: 0;
   color: var(--color-text-hint);
 }

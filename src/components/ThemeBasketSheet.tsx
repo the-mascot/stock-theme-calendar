@@ -1,54 +1,18 @@
 import { getSafeAreaInsets } from '@apps-in-toss/web-framework';
-import { useEffect, useState } from 'react';
 import { Close } from './icons';
 import './Sheet.css';
 import './ThemeBasketSheet.css';
-import { fetchThemeBaskets } from '../lib/data';
-import type { ThemeBasketFile } from '../lib/types';
+import { ThemeBasketTable } from './ThemeBasketTable';
+import { formatPeriod } from '../lib/basket';
+import { useThemeBaskets } from '../lib/useThemeBaskets';
 
 interface ThemeBasketSheetProps {
   onClose: () => void;
 }
 
-/** 판정 3단계 — verify.py 의 ✅/⚠️/❌ 와 같은 경계를 쓴다. 경계값은
-    data/themes.json 의 thresholds 에서 받아서, 파이썬 쪽만 고쳐도 따라온다. */
-type Grade = 'good' | 'watch' | 'weak' | 'none';
-
-function gradeOf(r: number | null, good: number, watch: number): Grade {
-  if (r == null) return 'none';
-  if (r >= good) return 'good';
-  if (r >= watch) return 'watch';
-  return 'weak';
-}
-
-function formatR(r: number | null): string {
-  return r == null ? '–' : r.toFixed(2);
-}
-
-/** "1y" → "최근 1년" */
-function formatPeriod(period: string): string {
-  const m = /^(\d+)([ym])$/.exec(period.trim());
-  if (!m) return period;
-  return `최근 ${m[1]}${m[2] === 'y' ? '년' : '개월'}`;
-}
-
 export function ThemeBasketSheet({ onClose }: ThemeBasketSheetProps) {
   const insets = getSafeAreaInsets();
-  const [data, setData] = useState<ThemeBasketFile | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchThemeBaskets()
-      .then((d) => !cancelled && setData(d))
-      .catch((e: Error) => !cancelled && setError(e.message));
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const good = data?.thresholds.good ?? 0.6;
-  const watch = data?.thresholds.watch ?? 0.3;
+  const { data, error, good, watch } = useThemeBaskets();
 
   return (
     <div className="sheet-overlay" onClick={onClose}>
@@ -105,33 +69,7 @@ export function ThemeBasketSheet({ onClose }: ThemeBasketSheetProps) {
               </section>
 
               {data.themes.map((theme) => (
-                <section key={theme.id} className="basket-theme">
-                  <div className="basket-theme-head">
-                    <h3 className="basket-theme-name">{theme.name}</h3>
-                    <span className="basket-theme-count">{theme.stocks.length}종목</span>
-                    <span className={`basket-cohesion basket-cohesion-${gradeOf(theme.cohesion, good, watch)}`}>
-                      응집도 {formatR(theme.cohesion)}
-                    </span>
-                  </div>
-                  <table className="basket-table">
-                    <thead>
-                      <tr>
-                        <th scope="col">종목</th>
-                        <th scope="col" className="basket-col-r">
-                          상관도
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {theme.stocks.map((s) => (
-                        <tr key={s.code}>
-                          <td>{s.name}</td>
-                          <td className={`basket-col-r basket-r-${gradeOf(s.r, good, watch)}`}>{formatR(s.r)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </section>
+                <ThemeBasketTable key={theme.id} theme={theme} good={good} watch={watch} />
               ))}
             </>
           )}

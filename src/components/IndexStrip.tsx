@@ -6,7 +6,7 @@ interface IndexStripProps {
   kospi: number | null;
   kosdaq: number | null;
   lead: { theme: Theme; value: number | null } | null;
-  /** 값 라벨 — 하루 기준이면 "종목 평균 등락", 한 달 기준이면 "일평균 등락". */
+  /** 값 라벨 — 하루 기준이면 "종목 평균 등락", 한 달 기준이면 "한 달 등락"/"한 달 시장대비". */
   leadLabel: string;
 }
 

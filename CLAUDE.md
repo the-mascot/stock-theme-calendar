@@ -166,9 +166,11 @@ GitHub Pages 소스를 **"/ (root)"**로 설정해야 한다 — `docs/` 폴더�
 - **GitHub Actions** — `.github/workflows/daily-batch.yml`, 평일 KST 16시
   이후(`Build.py --daily`) 자동 실행 + `data/` 변경분 자동 커밋
 - **`verify.py`** — 바스켓 상관계수 검증. `verify_report.md` + `data/themes.json`
-- **기준 종목 시트** — 푸터 첫 줄 "테마 기준 종목 보기" → 12개 테마의 구성
-  종목·상관도·응집도를 표로 (`src/components/ThemeBasketSheet.tsx`). 시트를
-  열 때 `themes.json`을 한 번만 받아 캐시한다(`fetchThemeBaskets`)
+- **기준 종목 시트** — 푸터 첫 줄 "테마 기준 종목 보기"(전체 12개,
+  `ThemeBasketSheet`)와 저조 테마 탭(단일 테마, `ThemeStocksSheet`)이
+  `ThemeBasketTable`로 같은 표를 그린다. 둘 다 `useThemeBaskets`로 같은
+  `themes.json`을 보므로 종목이 어긋나지 않는다. 시트를 열 때 한 번만 받아
+  캐시한다(`fetchThemeBaskets`)
 
 **SDK: WebView로 결정**
 
@@ -185,8 +187,6 @@ GitHub Pages 소스를 **"/ (root)"**로 설정해야 한다 — `docs/` 폴더�
 
 - 재검토 대상 15종목 정리 — `verify_report.md` 맨 아래 표. 옮길지 뺄지는
   숫자만 보고 자동으로 정하지 말 것(순도·유동성이 우선)
-- `WeakThemes`의 테마별 종목 시트(`ThemeStocksSheet`)는 아직 그달 상위 등락
-  종목만 모은 근사치다. `themes.json`이 생겼으니 실제 바스켓으로 바꿀 수 있다
 - 앱인토스 등록 → 심사
 
 ## 정책 (참고만, 개발 막지 말 것)

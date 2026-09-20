@@ -100,6 +100,16 @@ export function useRewardedAd({ enabled, onReward }: Options) {
 
   const show = useCallback(() => {
     if (status !== 'ready' || !REWARDED_AD_GROUP_ID) return;
+
+    // 개발 중(npm run dev)에는 브라우저에 광고 화면이 안 뜨고 바로 dismissed로 빠져서
+    // 잠긴 화면을 확인할 수가 없다 — 버튼을 누른 즉시 보상 처리한다.
+    // 출시 빌드(vite build)에서는 이 분기가 통째로 빠진다.
+    if (import.meta.env.DEV) {
+      console.info('[dev] 리워드 광고를 건너뛰고 바로 열어 줍니다.');
+      onReward();
+      return;
+    }
+
     setStatus('showing');
     let earned = false;
     // 재생을 요청했는데 광고 화면이 안 뜨고 아무 이벤트도 안 오는 환경이면 "재생 중"에서 영영 못 벗어난다 —

@@ -80,7 +80,7 @@ function App() {
   const summary = isCurrentMonth ? null : summarizeMonth(monthData.days, monthData.themes, mode);
   const lastLead = lastDay?.lead ? monthData.themes.find((t) => t.id === lastDay.lead) : undefined;
   const stripLead = summary
-    ? summary.lead && { theme: summary.lead.theme, value: summary.lead.avg }
+    ? summary.lead && { theme: summary.lead.theme, value: summary.lead.value }
     : lastLead && lastDay && { theme: lastLead, value: lastDay.th[lastLead.id]?.[mode] ?? null };
 
   return (
@@ -103,7 +103,7 @@ function App() {
               kospi={summary ? summary.kospi : lastDay.idx.kospi}
               kosdaq={summary ? summary.kosdaq : lastDay.idx.kosdaq}
               lead={stripLead || null}
-              leadLabel={summary ? '일평균 등락' : '종목 평균 등락'}
+              leadLabel={summary ? (mode === 'rel' ? '한 달 시장대비' : '한 달 등락') : '종목 평균 등락'}
             />
           </>
         ) : (
@@ -169,14 +169,15 @@ function App() {
 
       <BannerAd />
 
+      <button type="button" className="app-basket-link" onClick={() => setBasketOpen(true)}>
+        <span>테마 기준 종목 보기</span>
+        <ChevronRight size={16} />
+      </button>
+
       <footer className="app-footer">
-        <button type="button" className="app-footer-link" onClick={() => setBasketOpen(true)}>
-          <span>테마 기준 종목 보기</span>
-          <ChevronRight size={16} />
-        </button>
         <ul className="app-footer-notes">
           <li className="app-footer-text">이 정보는 참고용으로 제공되며, 투자 판단과 그 결과에 대한 책임은 본인에게 있습니다.</li>
-          <li className="app-footer-text">매일 정규장 마감(오후 3시 30분) 후, 오후 4시경 업데이트돼요.</li>
+          <li className="app-footer-text">매일 시간외 거래 마감(오후 8시) 후, 오후 8시 10분경 업데이트돼요.</li>
         </ul>
       </footer>
 

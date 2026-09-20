@@ -49,7 +49,7 @@ export function WeakThemes({ themes, days, mode, stocks, unlocked, onUnlock }: W
       <h2 className="app-section-title">이번 달 저조했던 테마</h2>
       <p className="app-section-desc">
         이번 달 평균 등락률이 가장 낮았던 테마예요. 아직 순환이 안 온 테마일 수 있어요.
-        {showList && ' 테마명을 누르면 기준 종목을 볼 수 있어요.'}
+        {showList && ' 테마명을 누르면 상위 5종목을 볼 수 있어요.'}
       </p>
 
       {showList ? (

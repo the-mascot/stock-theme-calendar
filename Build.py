@@ -115,14 +115,19 @@ def candles_to_closes(result):
     return out
 
 
-def closes_to_chg(closes):
-    """{날짜: 종가} → {날짜: 전일대비 등락률%}. 첫날은 기준이 없어 제외."""
+def closes_to_chg(closes, bases=None):
+    """{날짜: 종가} → {날짜: 전일대비 등락률%}. 첫날은 기준이 없어 제외.
+
+    bases 를 주면 전일 종가 대신 그쪽 값을 분모로 쓴다 — KRX 애프터마켓
+    이후로는 분모가 '전일 정규장 종가'라야 앱 표시와 맞는다
+    (REGULAR_CLOSE_FROM 주석 참고)."""
     days = sorted(closes)
     chg = {}
     for i in range(1, len(days)):
-        prev, cur = closes[days[i - 1]], closes[days[i]]
-        if prev:
-            chg[days[i]] = (cur / prev - 1.0) * 100.0
+        prev_day = days[i - 1]
+        base = (bases or {}).get(prev_day) or closes[prev_day]
+        if base:
+            chg[days[i]] = (closes[days[i]] / base - 1.0) * 100.0
     return chg
 
 
@@ -175,6 +180,59 @@ def fetch_index(api, idx, need):
 
 def fetch_stock(api, code, need):
     return fetch_candles(api, "/api/v1/candles", {"symbol": code}, need)
+
+
+# KRX 애프터마켓(정규장 마감 후 ~20시) 개장일.
+#
+# 이 날부터 일봉 closePrice 가 20시 애프터마켓 종가로 바뀌었는데, 토스 앱·
+# 증권사가 보여 주는 등락률의 **분모는 여전히 전일 정규장 종가**다. 그래서
+# 종가끼리 나누면 앱과 어긋난다(2026-09-18 SK하이닉스 +4.70% vs 앱 +5.96%).
+#
+#   앱 공식 = 그날 표시 종가(20시) ÷ 전일 정규장 종가
+#
+# 정규장 종가는 1분봉의 **15:31 봉**이다 — 15:20~15:30 은 종가 단일가 접수라
+# 거래량 0 이고, 체결이 15:31 봉에 한꺼번에 찍힌다. 애프터마켓 이전 날짜로
+# 검증하면 이 값이 증권사 일별시세 종가와 정확히 일치한다(9/11 1,812,000 등).
+# 15:30 봉을 쓰면 단일가 체결분이 빠져서 틀린다.
+#
+# 1분봉은 interval=1m 만 지원하고 2년 전까지 나온다. 호출은 (종목 × 날짜)당 1번.
+REGULAR_CLOSE_FROM = "2026-09-14"
+REGULAR_CLOSE_MINUTE = "15:31"
+
+
+def fetch_regular_close(api, code, day):
+    """그날 정규장 종가(15:31 봉). 못 받으면 None → 호출부가 일봉 값을 쓴다."""
+    res = api.get("/api/v1/candles", {
+        "symbol": code, "interval": "1m", "count": 3,
+        "before": f"{day}T{REGULAR_CLOSE_MINUTE}:59.000+09:00",
+    })
+    if not res:
+        return None
+    same_day = [c for c in res.get("candles", [])
+                if c.get("timestamp", "")[:10] == day
+                and c.get("timestamp", "")[11:16] <= REGULAR_CLOSE_MINUTE]
+    if not same_day:
+        return None
+    newest = max(same_day, key=lambda c: c["timestamp"])
+    try:
+        return float(newest["closePrice"])
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def regular_bases(api, code, closes):
+    """{날짜: 정규장 종가} — 분모로 쓸 날짜만. REGULAR_CLOSE_FROM 이후 날의
+       분모는 그 직전 영업일이므로 한 칸 앞에서부터 받는다."""
+    days = sorted(closes)
+    start = next((i for i, d in enumerate(days) if d >= REGULAR_CLOSE_FROM), None)
+    if start is None:
+        return {}
+    out = {}
+    for day in days[max(0, start - 1):]:
+        rc = fetch_regular_close(api, code, day)
+        if rc:
+            out[day] = rc
+    return out
 
 
 def extract_names(payload):
@@ -350,15 +408,21 @@ def main():
     all_codes = sorted({c for t in cfg["themes"] for c in t["tickers"]})
     log(f"\n종목 수집 ({len(all_codes)}개)")
     stock_chg, skipped = {}, []
+    fixed_total = 0
     for i, code in enumerate(all_codes, 1):
         closes = fetch_stock(api, code, count)
         if len(closes) < 2:
             skipped.append(code)
             log(f"  [{i:3d}/{len(all_codes)}] {code} ! 데이터 없음 — 스킵")
             continue
-        stock_chg[code] = closes_to_chg(closes)
+        bases = regular_bases(api, code, closes)
+        fixed_total += len(bases)
+        stock_chg[code] = closes_to_chg(closes, bases)
         if i % 20 == 0:
             log(f"  [{i:3d}/{len(all_codes)}] 진행 중...")
+
+    if fixed_total:
+        log(f"  정규장 종가를 분모로 사용: {fixed_total}건 ({REGULAR_CLOSE_FROM} 이후)")
 
     if skipped:
         log(f"\n! 스킵된 종목코드 ({len(skipped)}개): {', '.join(skipped)}")
