@@ -195,7 +195,7 @@ function App() {
       <footer className="app-footer">
         <ul className="app-footer-notes">
           <li className="app-footer-text">이 정보는 참고용으로 제공되며, 투자 판단과 그 결과에 대한 책임은 본인에게 있습니다.</li>
-          <li className="app-footer-text">매일 시간외 거래 마감(오후 8시) 후, 오후 8시 10분경 업데이트돼요.</li>
+          <li className="app-footer-text">평일 오후 3시 40분경, 시간외 거래 마감 후 오후 8시 10분경 두 번 업데이트돼요. 최종 수치는 저녁 갱신 기준이에요.</li>
         </ul>
       </footer>
 

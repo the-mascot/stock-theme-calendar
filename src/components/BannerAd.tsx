@@ -36,8 +36,11 @@ export function BannerAd() {
         }
         attached = TossAds.attachBanner(adGroupId, el, {
           theme: 'light', // 이 앱은 라이트 고정이라 배너도 맞춘다
-          tone: 'blackAndWhite',
-          variant: 'expanded',
+          // 페이지 배경이 흰색(--color-bg)이라 blackAndWhite 톤은 경계가 사라진다.
+          // 테두리를 직접 그리는 건 정책 위반(광고 단위 디자인 임의 수정)이라, 공식
+          // 프리셋인 회색 톤 + 카드형으로 구분을 만든다.
+          tone: 'grey',
+          variant: 'card',
           callbacks: {
             onAdRendered: done,
             onNoFill: () => {
