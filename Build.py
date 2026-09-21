@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import sys
 import time
@@ -129,6 +130,18 @@ def closes_to_chg(closes, bases=None):
         if base:
             chg[days[i]] = (closes[days[i]] / base - 1.0) * 100.0
     return chg
+
+
+def trunc2(x):
+    """소수 둘째 자리 버림(0 쪽으로) — 토스 앱 등락률 표시와 같은 규칙.
+    16.8176 → 16.81, -1.8685 → -1.86. round() 를 쓰면 셋째 자리가 5 이상일
+    때 앱보다 0.01 크게 나온다.
+
+    가격 나눗셈은 부동소수라 딱 떨어져야 할 값이 1.6999999… 로 나올 수 있다.
+    그대로 자르면 1.69 가 되므로 자르기 전에 1e-9 만큼 바깥으로 민다."""
+    if x is None:
+        return None
+    return math.trunc(x * 100 + math.copysign(1e-9, x)) / 100
 
 
 PAGE_MAX = 200     # API 상한
@@ -324,10 +337,10 @@ def aggregate(cfg, theme_chg, kospi_chg, day):
     k = kospi_chg.get(day)
 
     return {
-        "chg": round(mean, 2),
-        "rel": round(mean - k, 2) if k is not None else None,
+        "chg": trunc2(mean),
+        "rel": trunc2(mean - k) if k is not None else None,
         "n": len(rows),
-        "top": [[c, round(v, 2)] for c, v in top],
+        "top": [[c, trunc2(v)] for c, v in top],
     }
 
 
@@ -339,7 +352,7 @@ def nasdaq_for(qqq_chg, qqq_days, day):
             prev = d
         else:
             break
-    return round(qqq_chg[prev], 2) if prev else None
+    return trunc2(qqq_chg[prev]) if prev else None
 
 
 # ================================================================= main
@@ -451,10 +464,8 @@ def main():
         by_month[day[:7]].append({
             "d": day,
             "idx": {
-                "kospi": round(idx_chg.get("kospi", {}).get(day), 2)
-                if idx_chg.get("kospi", {}).get(day) is not None else None,
-                "kosdaq": round(idx_chg.get("kosdaq", {}).get(day), 2)
-                if idx_chg.get("kosdaq", {}).get(day) is not None else None,
+                "kospi": trunc2(idx_chg.get("kospi", {}).get(day)),
+                "kosdaq": trunc2(idx_chg.get("kosdaq", {}).get(day)),
                 "nasdaq": nasdaq_for(qqq_chg, qqq_days, day),
             },
             "th": th,
