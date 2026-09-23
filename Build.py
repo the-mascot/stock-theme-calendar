@@ -31,6 +31,12 @@ TIMEOUT = 20
 CALL_DELAY = 0.08          # MARKET_DATA_CHART 20/s 제한 → 약 12/s 로 여유
 MAX_RETRY = 3
 
+# daily 모드는 캔들 10개만 받는데, 창 맨 앞 며칠은 계열마다 시작일이 달라
+# 반쪽 집계가 나온다 — 장 시작 전(08시 NXT 프리마켓)에 돌리면 종목 캔들엔
+# 오늘 봉이 끼어 창이 하루 밀리고 지수는 안 밀린다. 그 결과가 upsert 로 멀쩡한
+# 과거 행을 덮어써서 2026-09-09 테마가 통째로 비었다. 그래서 창 뒤쪽 며칠만 쓴다.
+DAILY_WRITE_DAYS = 5
+
 
 # ================================================================= 공통
 def load_env(path=".env"):
@@ -443,6 +449,8 @@ def main():
 
     # ---- 날짜 축 = 기준지수 영업일
     days = [d for d in sorted(kospi_chg) if d <= cutoff]
+    if args.daily:
+        days = days[-DAILY_WRITE_DAYS:]
     log(f"\n집계 대상 {len(days)}일 ({days[0] if days else '-'} ~ {days[-1] if days else '-'})")
 
     # ---- 일별 집계
