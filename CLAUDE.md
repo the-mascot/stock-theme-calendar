@@ -21,12 +21,18 @@ toss/
 │   ├── themes.json    # 기준 종목 + 응집도 (앱 푸터 시트가 fetch)
 │   └── YYYY-MM.json   × 26개월
 ├── src/               # 미니앱 화면 (Apps in Toss web-framework, React)
-└── .github/workflows/daily-batch.yml   # 평일 KST 16시 자동 배치
+├── scripts/dispatch-batch.sh          # Lightsail 크론 → workflow_dispatch
+└── .github/workflows/daily-batch.yml   # 평일 KST 15:40 · 20:10 배치
 ```
 
-**서버 없음.** GitHub Actions(`daily-batch.yml`)가 매일 배치를 돌려 `data/`의
+**서빙 서버 없음.** GitHub Actions(`daily-batch.yml`)가 매일 배치를 돌려 `data/`의
 JSON을 커밋하고, GitHub Pages가 repo root를 그대로 서빙하고, 미니앱은
 `https://<user>.github.io/<repo>/data/...`를 fetch만 한다. DB도 백엔드도 없다.
+
+배치는 AWS Lightsail의 **self-hosted 러너**에서 돈다. 트리거도 GitHub
+`schedule`이 아니라 같은 서버의 **리눅스 크론**이 `scripts/dispatch-batch.sh`로
+`workflow_dispatch`를 던진다 — `schedule`은 4~6시간씩 밀렸다(2026-09-21~22).
+서버에 두는 건 Actions 권한만 가진 GitHub 토큰 하나고, 토스 키는 Secrets에만 있다.
 
 ```bash
 python Build.py --backfill 2y      # 최초 1회
@@ -163,8 +169,9 @@ GitHub Pages 소스를 **"/ (root)"**로 설정해야 한다 — `docs/` 폴더�
   미니앱 화면으로 이전. 호버 툴팁은 칸 탭 → 하단 시트(그날 12개 테마 전체
   순위 + 상위 종목)로, 7열 캘린더는 히트맵(가로 스크롤, 세로축 테마 고정)을
   기본 뷰로 바꿔 해소. 지수 3종은 칸에서 빼서 월 상단 요약으로 이동
-- **GitHub Actions** — `.github/workflows/daily-batch.yml`, 평일 KST 16시
-  이후(`Build.py --daily`) 자동 실행 + `data/` 변경분 자동 커밋
+- **GitHub Actions** — `.github/workflows/daily-batch.yml`, 평일 KST 15:40 ·
+  20:10(`Build.py --daily`) 자동 실행 + `data/` 변경분 자동 커밋. 트리거는
+  Lightsail 크론(`scripts/dispatch-batch.sh`)
 - **`verify.py`** — 바스켓 상관계수 검증. `verify_report.md` + `data/themes.json`
 - **중장기 강세 테마** — 최근 6개월 코스피 **상승일**만 추려 테마별 1위 횟수·
   점유율을 막대로 (`LeadShare`). 리워드 게이트 뒤에서 열리고 그때 6개월치
