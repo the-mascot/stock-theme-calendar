@@ -39,15 +39,30 @@
 
 .sheet-row {
   display: flex;
-  gap: var(--space-3);
+  flex-direction: column;
 }
 
 /* 테마 12줄이 붙어 있으면 어느 등락률이 어느 테마 건지 눈이 헷갈린다 —
-   줄 사이에 얇은 선을 넣고 위아래 12px씩 띄워 한 줄씩 끊어 읽히게 한다.
+   줄 사이에 얇은 선을 넣어 한 줄씩 끊어 읽히게 한다.
    저조 테마 목록(.weak-row)도 같은 방식이다. */
 .sheet-row + .sheet-row {
-  padding-top: var(--space-3);
   border-top: 1px solid var(--color-bg-canvas);
+}
+
+/* 테마 줄 전체가 접기/펴기 버튼 — 터치 타깃 44px 이상. */
+.sheet-row-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-1) 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .sheet-rank {
@@ -67,17 +82,11 @@
   gap: 2px;
 }
 
-.sheet-row-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-
 .sheet-row-name {
   font-size: 15px;
   font-weight: 600;
   color: var(--color-text-strong);
+  word-break: keep-all;
 }
 
 .sheet-row-chip {
@@ -96,13 +105,45 @@
   color: var(--color-text-subtle);
 }
 
-.sheet-row-top-stocks {
+.sheet-row-chevron {
+  flex-shrink: 0;
+  display: inline-flex;
+  color: var(--color-text-subtle);
+  transition: transform 0.15s ease;
+}
+
+.sheet-row-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+/* 펼친 테마의 종목 전체 — 순위 숫자 폭(20px + gap)만큼 들여 테마명과 줄을 맞춘다. */
+.sheet-stocks {
+  list-style: none;
+  margin: 0 0 var(--space-3);
+  padding: var(--space-1) 0 0 28px;
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-top: 2px;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .sheet-stock {
-  font-size: 13px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.sheet-stock-name {
+  min-width: 0;
+  font-size: 15px;
+  color: var(--color-text-default);
+  word-break: keep-all;
+}
+
+.sheet-stock-pct {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }

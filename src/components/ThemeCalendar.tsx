@@ -1,6 +1,6 @@
 import './ThemeCalendar.css';
 import type { DayData, Theme, ValueMode } from '../lib/types';
-import { bandInk, bandVar, formatPct, formatPctCompact, toneOf } from '../lib/format';
+import { bandInk, bandVar, formatPct, toneOf } from '../lib/format';
 
 interface ThemeCalendarProps {
   month: string;
@@ -77,8 +77,8 @@ export function ThemeCalendar({ month, themes, days, mode, onSelectDay }: ThemeC
             >
               <span className="cal-daynum">{dayNum}</span>
               <span className="cal-idx">
-                <span className={`tone-${toneOf(day.idx.kospi)}`}>{formatPctCompact(day.idx.kospi)}</span>
-                <span className={`tone-${toneOf(day.idx.kosdaq)}`}>{formatPctCompact(day.idx.kosdaq)}</span>
+                <span className={`tone-${toneOf(day.idx.kospi)}`}>{formatPct(day.idx.kospi)}</span>
+                <span className={`tone-${toneOf(day.idx.kosdaq)}`}>{formatPct(day.idx.kosdaq)}</span>
               </span>
               {lead && (
                 <span className="cal-chip" style={{ background: bandVar(v), color: bandInk(v) }}>

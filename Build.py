@@ -339,7 +339,9 @@ def aggregate(cfg, theme_chg, kospi_chg, day):
         return None
 
     mean = sum(v for _, v in rows) / len(rows)
-    top = sorted(rows, key=lambda x: x[1], reverse=True)[: cfg["top_n"]]
+    top = sorted(rows, key=lambda x: x[1], reverse=True)
+    if cfg.get("top_n"):                 # 비우면 바스켓 전체
+        top = top[: cfg["top_n"]]
     k = kospi_chg.get(day)
 
     return {
@@ -451,6 +453,12 @@ def main():
     days = [d for d in sorted(kospi_chg) if d <= cutoff]
     if args.daily:
         days = days[-DAILY_WRITE_DAYS:]
+    elif days:
+        # 백필은 월 파일을 통째로 다시 쓴다. 가장 오래된 달은 기간 경계에서 잘려
+        # 앞쪽 날짜가 없으니, 그 달은 건너뛰고 기존 파일을 그대로 둔다.
+        partial = days[0][:7]
+        days = [d for d in days if d[:7] != partial]
+        log(f"\n{partial} 은 기간 경계에서 잘린 달이라 건너뜀 (기존 파일 유지)")
     log(f"\n집계 대상 {len(days)}일 ({days[0] if days else '-'} ~ {days[-1] if days else '-'})")
 
     # ---- 일별 집계

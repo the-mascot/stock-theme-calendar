@@ -1,6 +1,6 @@
 import { getSafeAreaInsets } from '@apps-in-toss/web-framework';
-import { useMemo } from 'react';
-import { Close } from './icons';
+import { useMemo, useState } from 'react';
+import { ChevronDown, Close } from './icons';
 import './Sheet.css';
 import './DayDetailSheet.css';
 import type { DayData, Theme, ValueMode } from '../lib/types';
@@ -31,6 +31,8 @@ export function DayDetailSheet({ day, themes, stocks, mode, onClose }: DayDetail
       .filter((r) => r.stat != null)
       .sort((a, b) => (b.stat?.[mode] ?? 0) - (a.stat?.[mode] ?? 0));
   }, [themes, day, mode]);
+  // 한 번에 한 테마만 펼친다(전체 종목이라 여러 개 펴면 시트가 끝없이 길어진다). 처음엔 1위.
+  const [openId, setOpenId] = useState<string | null>(() => ranked[0]?.theme.id ?? null);
 
   return (
     <div className="sheet-overlay" onClick={onClose}>
@@ -66,33 +68,40 @@ export function DayDetailSheet({ day, themes, stocks, mode, onClose }: DayDetail
           {ranked.map(({ theme, stat }, i) => {
             if (!stat) return null;
             const v = stat[mode];
+            const isOpen = openId === theme.id;
+            const panelId = `sheet-stocks-${theme.id}`;
             return (
               <div key={theme.id} className="sheet-row">
-                <span className="sheet-rank">{i + 1}</span>
-                <div className="sheet-row-main">
-                  <div className="sheet-row-top">
+                <button
+                  type="button"
+                  className="sheet-row-head"
+                  aria-expanded={isOpen}
+                  aria-controls={panelId}
+                  onClick={() => setOpenId(isOpen ? null : theme.id)}
+                >
+                  <span className="sheet-rank">{i + 1}</span>
+                  <span className="sheet-row-main">
                     <span className="sheet-row-name">{theme.name}</span>
-                    <span className="sheet-row-chip" style={{ background: bandVar(v), color: bandInk(v) }}>
-                      {formatPct(v)}
-                    </span>
-                  </div>
-                  {/* 평소엔 종목 수를 감춘다 — 바로 아래 상위 종목 목록을 설명하는 줄로 읽혀서 헷갈렸다.
-                      유효 종목이 모자라 값이 흔들릴 때만 경고로 띄운다. */}
-                  {stat.n < 5 && (
-                    <div className="sheet-row-sub">
-                      <span>신뢰도 낮음 · 유효 종목 {stat.n}개</span>
-                    </div>
-                  )}
-                  {stat.top.length > 0 && (
-                    <div className="sheet-row-top-stocks">
-                      {stat.top.slice(0, 3).map(([code, pct]) => (
-                        <span key={code} className={`sheet-stock tone-${toneOf(pct)}`}>
-                          {stocks[code] ?? code} {formatPct(pct)}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                    {/* 평소엔 종목 수를 감춘다 — 유효 종목이 모자라 값이 흔들릴 때만 경고로 띄운다. */}
+                    {stat.n < 5 && <span className="sheet-row-sub">신뢰도 낮음 · 유효 종목 {stat.n}개</span>}
+                  </span>
+                  <span className="sheet-row-chip" style={{ background: bandVar(v), color: bandInk(v) }}>
+                    {formatPct(v)}
+                  </span>
+                  <span className={`sheet-row-chevron${isOpen ? ' is-open' : ''}`}>
+                    <ChevronDown size={18} />
+                  </span>
+                </button>
+                {isOpen && stat.top.length > 0 && (
+                  <ul id={panelId} className="sheet-stocks">
+                    {stat.top.map(([code, pct]) => (
+                      <li key={code} className="sheet-stock">
+                        <span className="sheet-stock-name">{stocks[code] ?? code}</span>
+                        <span className={`sheet-stock-pct tone-${toneOf(pct)}`}>{formatPct(pct)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             );
           })}

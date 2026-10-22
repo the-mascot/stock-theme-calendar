@@ -5,12 +5,6 @@ export function formatPct(v: number | null | undefined): string {
   return `${v > 0 ? '+' : ''}${v.toFixed(2)}%`;
 }
 
-/** 캘린더 칸처럼 폭이 아주 좁은 자리용 — %를 뺀다(색으로 방향은 이미 보임). */
-export function formatPctCompact(v: number | null | undefined): string {
-  if (v == null) return '–';
-  return `${v > 0 ? '+' : ''}${v.toFixed(2)}`;
-}
-
 export function toneOf(v: number | null | undefined): Tone {
   if (v == null || v === 0) return 'flat';
   return v > 0 ? 'up' : 'down';
