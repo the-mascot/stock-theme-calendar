@@ -149,6 +149,7 @@ function App() {
         <p className="app-section-desc">칸을 누르면 그날 테마 전체 순위를 볼 수 있어요.</p>
         <ThemeCalendar
           month={monthData.month}
+          lastDate={index.lastDate}
           themes={monthData.themes}
           days={monthData.days}
           mode={mode}
@@ -204,6 +205,7 @@ function App() {
       {selectedDay && (
         <DayDetailSheet
           day={selectedDay}
+          days={monthData.days}
           themes={monthData.themes}
           stocks={monthData.stocks}
           mode={mode}

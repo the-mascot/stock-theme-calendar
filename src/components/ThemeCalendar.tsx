@@ -4,6 +4,8 @@ import { bandInk, bandVar, formatPct, toneOf } from '../lib/format';
 
 interface ThemeCalendarProps {
   month: string;
+  /** 집계된 마지막 영업일(index.json). 이보다 앞인데 데이터가 없는 평일은 휴장일 */
+  lastDate: string;
   themes: Theme[];
   days: DayData[];
   mode: ValueMode;
@@ -11,6 +13,7 @@ interface ThemeCalendarProps {
 }
 
 interface Cell {
+  key: string;
   dayNum: number;
   data: DayData | null;
 }
@@ -22,7 +25,7 @@ function todayKey(): string {
   return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
 }
 
-export function ThemeCalendar({ month, themes, days, mode, onSelectDay }: ThemeCalendarProps) {
+export function ThemeCalendar({ month, lastDate, themes, days, mode, onSelectDay }: ThemeCalendarProps) {
   const [y, mo] = month.split('-').map(Number);
   const byDate = new Map(days.map((d) => [d.d, d]));
   const first = new Date(y, mo - 1, 1);
@@ -39,7 +42,7 @@ export function ThemeCalendar({ month, themes, days, mode, onSelectDay }: ThemeC
     if (dow === 0 || dow === 6) continue;
     const key = `${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     if (key > today) break; // 오늘 이후는 항상 빈 칸이라 아예 그리지 않는다
-    cells.push({ dayNum: d, data: byDate.get(key) ?? null });
+    cells.push({ key, dayNum: d, data: byDate.get(key) ?? null });
   }
 
   return (
@@ -55,11 +58,16 @@ export function ThemeCalendar({ month, themes, days, mode, onSelectDay }: ThemeC
         {Array.from({ length: leadingBlanks }, (_, i) => (
           <div key={`blank-${i}`} className="cal-cell cal-cell-blank" aria-hidden="true" />
         ))}
-        {cells.map(({ dayNum, data: day }) => {
+        {cells.map(({ key, dayNum, data: day }) => {
           if (!day) {
+            // 마지막 집계일 이후는 아직 모르는 날 — 오늘이면 배치 예정 시각을, 그 외엔 빈 칸.
+            const closed = key < lastDate;
+            const pending = !closed && key === today;
             return (
               <div key={dayNum} className="cal-cell cal-cell-nodata">
                 <span className="cal-daynum">{dayNum}</span>
+                {closed && <span className="cal-closed">휴장</span>}
+                {pending && <span className="cal-closed">오후 3:40 업데이트 예정</span>}
               </div>
             );
           }

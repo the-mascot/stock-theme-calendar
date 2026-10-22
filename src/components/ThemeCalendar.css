@@ -46,6 +46,14 @@
   cursor: default;
 }
 
+.cal-closed {
+  margin: auto;
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-subtle);
+  word-break: keep-all;
+}
+
 .cal-cell-blank {
   background: transparent;
   border-color: transparent;
