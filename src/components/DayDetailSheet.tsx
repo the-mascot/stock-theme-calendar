@@ -73,6 +73,14 @@ export function DayDetailSheet({ day, days, themes, stocks, mode, onClose }: Day
         </div>
 
         <div className="sheet-list">
+          {/* 테마 값은 코스피를 뺀 값인데 펼친 종목은 실제 등락률이라, 둘이 섞여
+              "종목은 다 플러스인데 테마는 마이너스"로 읽히지 않게 열 머리에 기준을 적는다. */}
+          {ranked.length > 0 && (
+            <div className="sheet-list-head">
+              <span>테마 - 종목</span>
+              <span>{mode === 'rel' ? '시장대비 등락률' : '평균 등락률'}</span>
+            </div>
+          )}
           {ranked.length === 0 && <p className="sheet-empty">이 날은 유효한 테마 데이터가 없어요.</p>}
           {ranked.map(({ theme, stat }, i) => {
             if (!stat) return null;

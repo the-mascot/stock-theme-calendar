@@ -100,6 +100,18 @@
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
 }
 
+/* 열 머리 — 오른쪽 글자를 등락률 칩 위에 맞추려고 접기 꺾쇠 폭(18px + gap 8px)만큼 띄운다. */
+.sheet-list-head {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 26px 0 28px;
+  margin-top: var(--space-2);
+  margin-bottom: calc(var(--space-3) * -1);
+  font-size: 13px;
+  color: var(--color-text-subtle);
+  word-break: keep-all;
+}
+
 .sheet-row-sub {
   font-size: 13px;
   color: var(--color-text-subtle);
